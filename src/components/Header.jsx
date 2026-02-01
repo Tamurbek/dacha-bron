@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Sun, Moon, Heart, Languages, Search, SlidersHorizontal, Smartphone } from 'lucide-react';
 import { useI18n } from '../i18n/useI18n';
 import { Button } from './ui/Button';
+import { Logo } from './Logo';
 
 export function Header() {
     const { t, lang, setLang } = useI18n();
@@ -37,14 +38,7 @@ export function Header() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center space-x-1.5 sm:space-x-2">
-                        <div className="w-8 h-8 md:w-10 md:h-10 bg-primary-600 rounded-lg md:rounded-xl flex items-center justify-center">
-                            <span className="text-white font-bold text-lg md:text-xl">O</span>
-                        </div>
-                        <span className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-sky-500 hidden xs:block">
-                            Orom.uz
-                        </span>
-                    </Link>
+                    <Logo />
 
                     {/* Right Actions */}
                     <div className="flex items-center space-x-2 sm:space-x-4">

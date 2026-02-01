@@ -7,8 +7,8 @@ export const AdminSettings = () => {
     const [showSuccess, setShowSuccess] = useState(false);
 
     const [settings, setSettings] = useState({
-        siteName: 'Orom.uz',
-        email: 'info@orom.uz',
+        siteName: 'JIZZAXREST',
+        email: 'info@jizzaxrest.com',
         notifications: true,
         darkMode: false,
         multiLang: true

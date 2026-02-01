@@ -16,6 +16,7 @@ import {
     Moon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Logo } from '../../components/Logo';
 
 const SidebarLink = ({ to, icon: Icon, label, active, onClick }) => (
     <Link
@@ -76,16 +77,11 @@ export const AdminLayout = () => {
     const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex transition-colors duration-500 text-gray-900 dark:text-gray-100 uppercase tracking-tight">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex transition-colors duration-500 text-gray-900 dark:text-gray-100 tracking-tight">
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex flex-col w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 sticky top-0 h-screen p-6 transition-colors duration-500">
-                <div className="flex items-center space-x-2 px-2 mb-10">
-                    <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-                        <Home className="text-white" size={24} />
-                    </div>
-                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-blue-600">
-                        Dacha Admin
-                    </span>
+                <div className="mb-10 px-2">
+                    <Logo />
                 </div>
 
                 <nav className="flex-grow space-y-2">
@@ -125,17 +121,7 @@ export const AdminLayout = () => {
 
             {/* Mobile Top App Bar */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 px-4 py-4 flex items-center justify-between transition-colors duration-500">
-                <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-primary-500 to-blue-500 p-[2px]">
-                        <div className="w-full h-full rounded-2xl bg-white dark:bg-gray-900 flex items-center justify-center transition-colors">
-                            <span className="font-black text-primary-600">A</span>
-                        </div>
-                    </div>
-                    <div>
-                        <h1 className="text-sm font-black text-gray-900 dark:text-white leading-none">Admin Panel</h1>
-                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Xush kelibsiz</p>
-                    </div>
-                </div>
+                <Logo iconOnly className="scale-90" />
 
                 <div className="flex items-center space-x-2">
                     <button
@@ -181,15 +167,6 @@ export const AdminLayout = () => {
                     </div>
 
                     <div className="flex items-center space-x-4">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                            <input
-                                type="text"
-                                placeholder="Qidirish..."
-                                className="pl-10 pr-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-64 dark:text-white"
-                            />
-                        </div>
-
                         <button className="p-2.5 text-gray-500 hover:bg-white dark:hover:bg-gray-900 hover:shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-800 rounded-xl transition-all relative">
                             <Bell size={20} />
                             <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-gray-50 dark:border-gray-950"></span>

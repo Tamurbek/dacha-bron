@@ -58,7 +58,7 @@ export const AdminUsers = () => {
                         <input
                             type="text"
                             placeholder="Foydalanuvchilarni qidirish..."
-                            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm dark:text-white"
+                            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -66,13 +66,13 @@ export const AdminUsers = () => {
                     <div className="hidden md:flex items-center bg-gray-50 dark:bg-gray-800 p-1 rounded-2xl border border-gray-100 dark:border-gray-700">
                         <button
                             onClick={() => setViewType('grid')}
-                            className={`p-2 rounded-xl transition-all ${viewType === 'grid' ? 'bg-white dark:bg-gray-700 text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                            className={`p-2 rounded-xl transition-all ${viewType === 'grid' ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                             <LayoutGrid size={20} />
                         </button>
                         <button
                             onClick={() => setViewType('table')}
-                            className={`p-2 rounded-xl transition-all ${viewType === 'table' ? 'bg-white dark:bg-gray-700 text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                            className={`p-2 rounded-xl transition-all ${viewType === 'table' ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                             <TableIcon size={20} />
                         </button>
@@ -80,7 +80,7 @@ export const AdminUsers = () => {
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center justify-center space-x-2 px-8 py-3.5 bg-primary text-white rounded-2xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+                    className="flex items-center justify-center space-x-2 px-8 py-3.5 bg-primary-600 text-white rounded-2xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20 active:scale-95 whitespace-nowrap"
                 >
                     <UserPlus size={20} />
                     <span className="font-black text-sm uppercase tracking-wider">Yangi qo'shish</span>
@@ -168,7 +168,7 @@ export const AdminUsers = () => {
                                             </td>
                                             <td className="px-8 py-5 text-sm font-bold text-gray-500 dark:text-gray-400">{user.email}</td>
                                             <td className="px-8 py-5">
-                                                <button onClick={() => toggleRole(user.id)} className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${user.role === 'admin' ? 'bg-purple-500/10 text-purple-600 border-purple-500/20' : 'bg-blue-500/10 text-blue-600 border-blue-500/20'}`}>{user.role}</button>
+                                                <button onClick={() => toggleRole(user.id)} className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${user.role === 'admin' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20' : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'}`}>{user.role}</button>
                                             </td>
                                             <td className="px-8 py-5 text-sm font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap">{user.joined}</td>
                                             <td className="px-8 py-5">
@@ -196,16 +196,16 @@ export const AdminUsers = () => {
                             exit={{ scale: 0.9, opacity: 0 }}
                             className="bg-white dark:bg-gray-900 w-full max-w-md rounded-3xl shadow-2xl relative z-10 p-8"
                         >
-                            <h3 className="text-2xl font-bold mb-6">Yangi foydalanuvchi</h3>
+                            <h3 className="text-2xl font-black mb-6 text-gray-900 dark:text-white">Yangi foydalanuvchi</h3>
                             <div className="space-y-4">
-                                <input type="text" placeholder="FISH" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none" />
-                                <input type="email" placeholder="Email" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none" />
-                                <select className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none">
+                                <input type="text" placeholder="FISH" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl outline-none text-gray-900 dark:text-white" />
+                                <input type="email" placeholder="Email" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl outline-none text-gray-900 dark:text-white" />
+                                <select className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl outline-none text-gray-900 dark:text-white">
                                     <option value="user">User</option>
                                     <option value="admin">Admin</option>
                                 </select>
                                 <button
-                                    className="w-full py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/20 flex items-center justify-center space-x-2"
+                                    className="w-full py-3 bg-primary-600 text-white rounded-xl font-black shadow-lg shadow-primary-600/20 flex items-center justify-center space-x-2 hover:bg-primary-700 transition-all mt-4"
                                     onClick={() => {
                                         setIsLoading(true);
                                         setTimeout(() => {

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n/useI18n';
 import { Instagram, Facebook, Send } from 'lucide-react';
+import { Logo } from './Logo';
 
 export function Footer() {
     const { t } = useI18n();
@@ -11,14 +12,7 @@ export function Footer() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                     <div className="col-span-1 md:col-span-1">
-                        <Link to="/" className="flex items-center space-x-2 mb-6">
-                            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                                <span className="text-white font-bold text-lg">O</span>
-                            </div>
-                            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-sky-500">
-                                Orom.uz
-                            </span>
-                        </Link>
+                        <Logo className="mb-6" />
                         <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                             O'zbekistondagi eng yaxshi dacha va villalarni bron qilish platformasi. Biz bilan dam olishingiz maroqli o'tadi.
                         </p>
@@ -61,7 +55,7 @@ export function Footer() {
                 </div>
 
                 <div className="pt-8 border-t border-gray-100 dark:border-gray-800 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-                    <p>© {year} Orom.uz. {t('all_rights')}.</p>
+                    <p>© {year} JIZZAXREST. {t('all_rights')}.</p>
                     <div className="flex space-x-6 mt-4 md:mt-0">
                         <p>Made with ❤️ for Uzbekistan</p>
                     </div>

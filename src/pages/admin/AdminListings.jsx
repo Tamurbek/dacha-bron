@@ -162,13 +162,13 @@ export const AdminListings = () => {
                     <div className="hidden md:flex items-center bg-gray-50 dark:bg-gray-800 p-1 rounded-2xl border border-gray-100 dark:border-gray-700">
                         <button
                             onClick={() => setViewType('grid')}
-                            className={`p-2 rounded-xl transition-all ${viewType === 'grid' ? 'bg-white dark:bg-gray-700 text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                            className={`p-2 rounded-xl transition-all ${viewType === 'grid' ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                             <LayoutGrid size={20} />
                         </button>
                         <button
                             onClick={() => setViewType('table')}
-                            className={`p-2 rounded-xl transition-all ${viewType === 'table' ? 'bg-white dark:bg-gray-700 text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                            className={`p-2 rounded-xl transition-all ${viewType === 'table' ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                             <TableIcon size={20} />
                         </button>
@@ -176,7 +176,7 @@ export const AdminListings = () => {
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="flex items-center justify-center space-x-2 px-8 py-3.5 bg-primary text-white rounded-2xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+                    className="flex items-center justify-center space-x-2 px-8 py-3.5 bg-primary-600 text-white rounded-2xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20 active:scale-95 whitespace-nowrap"
                 >
                     <Plus size={20} />
                     <span className="font-black text-sm uppercase tracking-wider">Yangi qo'shish</span>
@@ -400,7 +400,7 @@ export const AdminListings = () => {
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                             placeholder="Dacha nomi..."
-                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all"
+                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -410,7 +410,7 @@ export const AdminListings = () => {
                                             value={formData.location}
                                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                             placeholder="Masalan: Bo'stonliq, Toshkent"
-                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all"
+                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -420,7 +420,7 @@ export const AdminListings = () => {
                                             value={formData.price}
                                             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                             placeholder="So'mda"
-                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all"
+                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -428,7 +428,7 @@ export const AdminListings = () => {
                                         <select
                                             value={formData.status}
                                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all appearance-none"
+                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all appearance-none"
                                         >
                                             <option value="active">Faol</option>
                                             <option value="inactive">Nofaol</option>
@@ -443,7 +443,7 @@ export const AdminListings = () => {
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                         placeholder="Dacha haqida batafsil ma'lumot..."
-                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all resize-none"
+                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all resize-none"
                                     ></textarea>
                                 </div>
 
@@ -502,7 +502,7 @@ export const AdminListings = () => {
                                 <button
                                     disabled={isSaving}
                                     onClick={handleSave}
-                                    className="px-8 py-2.5 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center space-x-2 disabled:opacity-50"
+                                    className="px-8 py-2.5 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20 flex items-center space-x-2 disabled:opacity-50"
                                 >
                                     {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                                     <span>{editingListing ? 'Saqlash' : 'Qo\'shish'}</span>

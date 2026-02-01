@@ -42,8 +42,8 @@ export function Home() {
                 <div className="relative z-10 w-full max-w-7xl mx-auto px-4 mt-12 md:mt-20">
                     <div className="text-center mb-8 md:mb-12 space-y-3 md:space-y-4">
                         <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-white text-shadow-xl leading-tight tracking-tight">
-                            O'zbekistonda Dam Olishni <br className="hidden sm:block" />
-                            <span className="text-primary-400">Biz Bilan Boshlang</span>
+                            O'zbekistonda dam olishni <br className="hidden sm:block" />
+                            <span className="text-primary-400">biz bilan boshlang</span>
                         </h1>
                         <p className="text-base md:text-xl text-gray-200 max-w-2xl mx-auto px-4 font-medium opacity-90">
                             Eng shinam dacha, villa va dam olish maskanlarini bir necha soniya ichida toping.

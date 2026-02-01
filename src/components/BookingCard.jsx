@@ -2,10 +2,14 @@ import { useNavigate } from 'react-router-dom';
 import { Star } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useI18n } from '../i18n/useI18n';
+import { DatePicker } from './ui/DatePicker';
+import { useState } from 'react';
 
 export function BookingCard({ listing }) {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const [checkIn, setCheckIn] = useState(null);
+    const [checkOut, setCheckOut] = useState(null);
 
     return (
         <div className="sticky top-24 bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700">
@@ -22,15 +26,25 @@ export function BookingCard({ listing }) {
                 </div>
             </div>
 
-            <div className="border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden mb-8">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-2xl mb-8">
                 <div className="flex border-b border-gray-200 dark:border-gray-700">
                     <div className="flex-1 p-3 border-r border-gray-200 dark:border-gray-700">
                         <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Check-in</label>
-                        <input type="date" className="text-sm font-medium bg-transparent outline-none w-full dark:invert" />
+                        <DatePicker
+                            selected={checkIn}
+                            onChange={(date) => setCheckIn(date)}
+                            placeholder="Sana tanlang"
+                            icon={null}
+                        />
                     </div>
                     <div className="flex-1 p-3">
                         <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Check-out</label>
-                        <input type="date" className="text-sm font-medium bg-transparent outline-none w-full dark:invert" />
+                        <DatePicker
+                            selected={checkOut}
+                            onChange={(date) => setCheckOut(date)}
+                            placeholder="Sana tanlang"
+                            icon={null}
+                        />
                     </div>
                 </div>
                 <div className="p-3">

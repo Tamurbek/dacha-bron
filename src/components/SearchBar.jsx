@@ -4,6 +4,8 @@ import { Search, MapPin, Calendar, Users, ChevronDown } from 'lucide-react';
 import { useI18n } from '../i18n/useI18n';
 import { regions } from '../data/regions';
 import { Button } from './ui/Button';
+import { DatePicker } from './ui/DatePicker';
+import { format, parseISO } from 'date-fns';
 
 export function SearchBar({ className, initialData = {} }) {
     const { t, lang } = useI18n();
@@ -16,8 +18,8 @@ export function SearchBar({ className, initialData = {} }) {
     const handleSearch = () => {
         const params = new URLSearchParams();
         if (region) params.append('region', region);
-        if (fromDate) params.append('from', fromDate);
-        if (toDate) params.append('to', toDate);
+        if (fromDate) params.append('from', format(new Date(fromDate), 'yyyy-MM-dd'));
+        if (toDate) params.append('to', format(new Date(toDate), 'yyyy-MM-dd'));
         if (guests) params.append('guests', guests);
 
         navigate(`/search?${params.toString()}`);
@@ -51,15 +53,11 @@ export function SearchBar({ className, initialData = {} }) {
                 <div className="flex-1 flex flex-col sm:flex-row gap-1 sm:gap-0">
                     <div className="flex-1 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-2xl md:rounded-full transition-colors cursor-pointer group">
                         <label className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500 block pl-8 mb-0.5">{t('from')}</label>
-                        <div className="flex items-center space-x-3">
-                            <Calendar className="w-5 h-5 text-primary-600" />
-                            <input
-                                type="date"
-                                value={fromDate}
-                                onChange={(e) => setFromDate(e.target.value)}
-                                className="bg-transparent border-none outline-none text-sm font-semibold w-full cursor-pointer dark:invert dark:hue-rotate-180"
-                            />
-                        </div>
+                        <DatePicker
+                            selected={fromDate ? new Date(fromDate) : null}
+                            onChange={(date) => setFromDate(date)}
+                            placeholder={t('from')}
+                        />
                     </div>
 
                     <div className="hidden sm:block w-px h-8 bg-gray-100 dark:bg-gray-700 my-auto" />
@@ -67,15 +65,11 @@ export function SearchBar({ className, initialData = {} }) {
 
                     <div className="flex-1 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-2xl md:rounded-full transition-colors cursor-pointer group">
                         <label className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500 block pl-8 mb-0.5">{t('to')}</label>
-                        <div className="flex items-center space-x-3">
-                            <Calendar className="w-5 h-5 text-primary-600" />
-                            <input
-                                type="date"
-                                value={toDate}
-                                onChange={(e) => setToDate(e.target.value)}
-                                className="bg-transparent border-none outline-none text-sm font-semibold w-full cursor-pointer dark:invert dark:hue-rotate-180"
-                            />
-                        </div>
+                        <DatePicker
+                            selected={toDate ? new Date(toDate) : null}
+                            onChange={(date) => setToDate(date)}
+                            placeholder={t('to')}
+                        />
                     </div>
                 </div>
 

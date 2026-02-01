@@ -123,9 +123,9 @@ export const AdminBookings = () => {
                     <div key={i} className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all hover:shadow-md">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{stat.label}</p>
                         <div className="flex items-center space-x-3">
-                            <div className={`w-2 h-8 rounded-full ${stat.color.replace('text-', 'bg-')}`} />
+                            <div className={`w-2 h-8 rounded-full ${stat.color === 'text-primary' ? 'bg-primary-600' : stat.color.replace('text-', 'bg-')}`} />
                             <div className="flex items-baseline space-x-1">
-                                <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>
+                                <p className={`text-2xl font-black ${stat.color === 'text-primary' ? 'text-primary-600 dark:text-primary-400' : stat.color}`}>{stat.value}</p>
                                 <span className="text-[10px] font-bold text-gray-400 uppercase">{stat.unit}</span>
                             </div>
                         </div>
@@ -140,7 +140,7 @@ export const AdminBookings = () => {
                         <input
                             type="text"
                             placeholder="Buyurtmalar (ID, mijoz)..."
-                            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm dark:text-white"
+                            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -148,13 +148,13 @@ export const AdminBookings = () => {
                     <div className="hidden md:flex items-center bg-gray-50 dark:bg-gray-800 p-1 rounded-2xl border border-gray-100 dark:border-gray-700">
                         <button
                             onClick={() => setViewType('grid')}
-                            className={`p-2 rounded-xl transition-all ${viewType === 'grid' ? 'bg-white dark:bg-gray-700 text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                            className={`p-2 rounded-xl transition-all ${viewType === 'grid' ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                             <LayoutGrid size={20} />
                         </button>
                         <button
                             onClick={() => setViewType('table')}
-                            className={`p-2 rounded-xl transition-all ${viewType === 'table' ? 'bg-white dark:bg-gray-700 text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                            className={`p-2 rounded-xl transition-all ${viewType === 'table' ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                             <TableIcon size={20} />
                         </button>
@@ -204,7 +204,7 @@ export const AdminBookings = () => {
                                     {filteredBookings.length > 0 ? filteredBookings.map((booking) => (
                                         <tr key={booking.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors group">
                                             <td className="px-8 py-6 whitespace-nowrap">
-                                                <span className="text-xs font-black text-primary bg-primary/10 px-3 py-1.5 rounded-xl border border-primary/20">
+                                                <span className="text-xs font-black text-primary-600 dark:text-primary-400 bg-primary-600/10 px-3 py-1.5 rounded-xl border border-primary-600/20">
                                                     {booking.id}
                                                 </span>
                                             </td>
