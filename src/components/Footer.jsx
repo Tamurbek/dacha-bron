@@ -38,9 +38,9 @@ export function Footer() {
                         <h4 className="font-bold mb-6 text-gray-900 dark:text-gray-100">Yordam</h4>
                         <ul className="space-y-4 text-sm text-gray-500 dark:text-gray-400">
                             <li><Link to="#" className="hover:text-primary-600 transition-colors">FAQ</Link></li>
+                            <li><Link to="/admin" className="hover:text-primary-600 transition-colors font-semibold text-primary-600">Boshqaruv paneli</Link></li>
                             <li><Link to="#" className="hover:text-primary-600 transition-colors">Biz bilan bog'lanish</Link></li>
                             <li><Link to="#" className="hover:text-primary-600 transition-colors">Qoidalar</Link></li>
-                            <li><Link to="#" className="hover:text-primary-600 transition-colors">Maxfiylik siyosati</Link></li>
                         </ul>
                     </div>
 
