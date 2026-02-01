@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-800 transition-colors duration-200;
+  }
+
+  body {
+    @apply bg-white text-gray-900 antialiased selection:bg-primary-100 selection:text-primary-900 transition-colors duration-300;
+  }
+
+  .dark body {
+    @apply bg-gray-950 text-gray-100 selection:bg-primary-900 selection:text-primary-100;
+  }
+
+  input,
+  select,
+  textarea {
+    @apply dark:text-gray-100;
+  }
+
+  option {
+    @apply dark:bg-gray-800 dark:text-gray-100;
+  }
+}
+
+.glass {
+  @apply backdrop-blur-md bg-white/70 dark:bg-gray-950/70 border-b border-gray-100 dark:border-gray-800/50;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-200 dark:bg-gray-800 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors;
+}
+
+/* Mobile Simulation Mode */
+body.mobile-sim {
+  @apply bg-gray-100 dark:bg-gray-950 flex justify-center items-center py-10 min-h-screen overflow-x-hidden;
+}
+
+body.mobile-sim #root {
+  width: 414px;
+  height: 850px;
+  transform: translate3d(0, 0, 0);
+  @apply bg-white dark:bg-gray-950 rounded-[3rem] overflow-hidden relative border-[8px] border-black shadow-2xl;
+}
+
+body.mobile-sim #root>div {
+  @apply h-full overflow-y-auto scrollbar-hide flex flex-col;
+}
+
+body.mobile-sim header {
+  @apply sticky top-0 w-full z-50;
+}
+
+body.mobile-sim footer {
+  @apply mt-auto;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
