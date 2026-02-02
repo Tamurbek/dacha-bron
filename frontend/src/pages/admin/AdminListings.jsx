@@ -1,3 +1,4 @@
+import { API_V1_URL } from '../../api/config';
 import React, { useState, useEffect } from 'react';
 import {
     Plus,
@@ -304,7 +305,7 @@ export const AdminListings = () => {
 
     const fetchListings = async (page = 1, search = '') => {
         try {
-            const response = await fetch(`http://localhost:8000/api/v1/listings/?page=${page}&size=${pageSize}&search=${encodeURIComponent(search)}&status=all`);
+            const response = await fetch(`${API_V1_URL}/listings/?page=${page}&size=${pageSize}&search=${encodeURIComponent(search)}&status=all`);
             const data = await response.json();
 
             const mappedData = data.items.map(l => ({
@@ -324,7 +325,7 @@ export const AdminListings = () => {
 
     const fetchAvailableAmenities = async () => {
         try {
-            const response = await fetch('http://localhost:8000/api/v1/amenities/');
+            const response = await fetch(`${API_V1_URL}/amenities/`);
             if (response.ok) {
                 const data = await response.json();
                 setAvailableAmenities(data);
@@ -360,13 +361,13 @@ export const AdminListings = () => {
         try {
             let response;
             if (editingListing) {
-                response = await fetch(`http://localhost:8000/api/v1/listings/${editingListing.id}`, {
+                response = await fetch(`${API_V1_URL}/listings/${editingListing.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 });
             } else {
-                response = await fetch('http://localhost:8000/api/v1/listings/', {
+                response = await fetch('${API_V1_URL}/listings/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
@@ -387,7 +388,7 @@ export const AdminListings = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Haqiqatdan ham ushbu dachani o\'chirib tashlamoqchimisiz?')) {
             try {
-                const response = await fetch(`http://localhost:8000/api/v1/listings/${id}`, {
+                const response = await fetch(`${API_V1_URL}/listings/${id}`, {
                     method: 'DELETE',
                 });
                 if (response.ok) {
@@ -406,7 +407,7 @@ export const AdminListings = () => {
         const newStatus = listing.status === 'active' ? 'inactive' : 'active';
 
         try {
-            const response = await fetch(`http://localhost:8000/api/v1/listings/${id}`, {
+            const response = await fetch(`${API_V1_URL}/listings/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus }),
@@ -436,7 +437,7 @@ export const AdminListings = () => {
         formDataPayload.append('file', file);
 
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://localhost:8000/api/v1/upload/file', true);
+        xhr.open('POST', '${API_V1_URL}/upload/file', true);
 
         xhr.upload.onprogress = (event) => {
             if (event.lengthComputable) {

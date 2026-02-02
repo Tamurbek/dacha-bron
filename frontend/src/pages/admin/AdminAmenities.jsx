@@ -1,3 +1,4 @@
+import { API_V1_URL } from '../../api/config';
 import React, { useState, useEffect } from 'react';
 import {
     Plus,
@@ -51,7 +52,7 @@ export const AdminAmenities = () => {
     const fetchAmenities = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:8000/api/v1/amenities/');
+            const response = await fetch(`${API_V1_URL}/amenities/`);
             if (response.ok) {
                 const data = await response.json();
                 setAmenities(data);
@@ -88,8 +89,8 @@ export const AdminAmenities = () => {
         setIsSaving(true);
         try {
             const url = editingAmenity
-                ? `http://localhost:8000/api/v1/amenities/${editingAmenity.id}`
-                : 'http://localhost:8000/api/v1/amenities/';
+                ? `${API_V1_URL}/amenities/${editingAmenity.id}`
+                : '${API_V1_URL}/amenities/';
 
             const response = await fetch(url, {
                 method: editingAmenity ? 'PUT' : 'POST',
@@ -111,7 +112,7 @@ export const AdminAmenities = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Haqiqatdan ham ushbu qulaylikni o\'chirib tashlamoqchimisiz?')) {
             try {
-                const response = await fetch(`http://localhost:8000/api/v1/amenities/${id}`, {
+                const response = await fetch(`${API_V1_URL}/amenities/${id}`, {
                     method: 'DELETE',
                 });
                 if (response.ok) {

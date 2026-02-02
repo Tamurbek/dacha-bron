@@ -1,3 +1,4 @@
+import { API_V1_URL } from '../api/config';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n/useI18n';
@@ -53,7 +54,7 @@ export function ListingDetail() {
         const fetchListing = async () => {
             setIsLoading(true);
             try {
-                const response = await fetch(`http://localhost:8000/api/v1/listings/${id}`);
+                const response = await fetch(`${API_V1_URL}/listings/${id}`);
                 if (!response.ok) throw new Error('Dacha topilmadi');
                 const data = await response.json();
 

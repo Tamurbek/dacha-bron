@@ -1,3 +1,4 @@
+import { API_V1_URL } from '../../api/config';
 import React, { useState, useEffect } from 'react';
 import { Settings, Bell, Shield, Moon, Globe, Save, CheckCircle, Loader2, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,7 +21,7 @@ export const AdminSettings = () => {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/v1/settings/telegram');
+                const response = await fetch(`${API_V1_URL}/settings/telegram`);
                 if (response.ok) {
                     const data = await response.json();
                     setSettings(prev => ({
@@ -42,7 +43,7 @@ export const AdminSettings = () => {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const response = await fetch('http://localhost:8000/api/v1/settings/telegram', {
+            const response = await fetch('${API_V1_URL}/settings/telegram', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

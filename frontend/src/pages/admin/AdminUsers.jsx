@@ -1,3 +1,4 @@
+import { API_V1_URL } from '../../api/config';
 import React, { useState, useEffect } from 'react';
 import {
     Users,
@@ -46,7 +47,7 @@ export const AdminUsers = () => {
     const fetchUsers = async (page = 1, search = '') => {
         setIsLoading(true);
         try {
-            const response = await fetch(`http://localhost:8000/api/v1/users/?page=${page}&size=${pageSize}&search=${encodeURIComponent(search)}`);
+            const response = await fetch(`${API_V1_URL}/users/?page=${page}&size=${pageSize}&search=${encodeURIComponent(search)}`);
             const data = await response.json();
 
             // Map created_at to joined if needed
@@ -68,7 +69,7 @@ export const AdminUsers = () => {
     const handleDeleteUser = async (id) => {
         if (window.confirm('Foydalanuvchini o\'chirib tashlamoqchimisiz?')) {
             try {
-                const response = await fetch(`http://localhost:8000/api/v1/users/${id}`, {
+                const response = await fetch(`${API_V1_URL}/users/${id}`, {
                     method: 'DELETE',
                 });
                 if (response.ok) {
@@ -83,7 +84,7 @@ export const AdminUsers = () => {
     const toggleRole = async (id, currentRole) => {
         const newRole = currentRole === 'admin' ? 'user' : 'admin';
         try {
-            const response = await fetch(`http://localhost:8000/api/v1/users/${id}`, {
+            const response = await fetch(`${API_V1_URL}/users/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ role: newRole }),

@@ -1,3 +1,4 @@
+import { API_V1_URL } from '../api/config';
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useI18n } from '../i18n/useI18n';
@@ -38,7 +39,7 @@ export function SearchResults() {
                 search: searchParams.get('q') || ''
             });
 
-            const response = await fetch(`http://localhost:8000/api/v1/listings/?${params.toString()}`);
+            const response = await fetch(`${API_V1_URL}/listings/?${params.toString()}`);
             if (!response.ok) throw new Error('Ma\'lumotlarni yuklashda xatolik');
             const data = await response.json();
 

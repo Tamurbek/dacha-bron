@@ -1,3 +1,4 @@
+import { API_V1_URL } from '../../api/config';
 import React, { useState, useEffect } from 'react';
 import {
     Home,
@@ -106,7 +107,7 @@ export const AdminBookings = () => {
     const fetchBookings = async (page = 1, status = 'all') => {
         setIsLoading(true);
         try {
-            const response = await fetch(`http://localhost:8000/api/v1/bookings/?page=${page}&size=${pageSize}&status=${status}`);
+            const response = await fetch(`${API_V1_URL}/bookings/?page=${page}&size=${pageSize}&status=${status}`);
             const data = await response.json();
 
             const mappedData = data.items.map(b => ({
@@ -134,7 +135,7 @@ export const AdminBookings = () => {
         if (!realId) return;
 
         try {
-            const response = await fetch(`http://localhost:8000/api/v1/bookings/${realId}`, {
+            const response = await fetch(`${API_V1_URL}/bookings/${realId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus }),

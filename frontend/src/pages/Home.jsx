@@ -1,3 +1,4 @@
+import { API_V1_URL } from '../api/config';
 import { useState, useEffect } from 'react';
 import { useI18n } from '../i18n/useI18n';
 import { SearchBar } from '../components/SearchBar';
@@ -16,7 +17,7 @@ export function Home() {
     useEffect(() => {
         const fetchListings = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/v1/listings/?size=8&status=active');
+                const response = await fetch(`${API_V1_URL}/listings/?size=8&status=active`);
                 if (!response.ok) throw new Error('Ma\'lumotlarni yuklashda xatolik');
                 const data = await response.json();
 
