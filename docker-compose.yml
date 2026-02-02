@@ -28,6 +28,8 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=${SECRET_KEY:-your-super-secret-key}
       - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHANNEL_ID=${TELEGRAM_CHANNEL_ID}
     depends_on:
       - db
       - redis

@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/dacha")
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
+    TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    TELEGRAM_CHANNEL_ID: str = os.getenv("TELEGRAM_CHANNEL_ID", "") # e.g. @mychannel
+
     class Config:
         case_sensitive = True
 
