@@ -53,6 +53,10 @@ services:
     restart: always
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt/live/jizzaxrest.uz/fullchain.pem:/etc/nginx/ssl/fullchain.pem:ro
+      - /etc/letsencrypt/live/jizzaxrest.uz/privkey.pem:/etc/nginx/ssl/privkey.pem:ro
     depends_on:
       - backend
 
