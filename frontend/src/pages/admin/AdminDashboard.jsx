@@ -57,7 +57,7 @@ export const AdminDashboard = () => {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
+        const timer = setTimeout(() => setMounted(true), 200);
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.attributeName === 'class') {
@@ -67,7 +67,10 @@ export const AdminDashboard = () => {
         });
 
         observer.observe(document.documentElement, { attributes: true });
-        return () => observer.disconnect();
+        return () => {
+            observer.disconnect();
+            clearTimeout(timer);
+        };
     }, []);
 
     const chartColors = {
@@ -129,9 +132,9 @@ export const AdminDashboard = () => {
                             <option>Shu yil</option>
                         </select>
                     </div>
-                    <div className="h-[350px] w-full">
+                    <div className="h-[350px] w-full min-h-[350px]">
                         {mounted && (
-                            <ResponsiveContainer width="99%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                                     <defs>
                                         <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
