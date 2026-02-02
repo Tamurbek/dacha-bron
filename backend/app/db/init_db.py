@@ -7,13 +7,17 @@ from app.models.amenity import Amenity
 
 def init_db(db: Session) -> None:
     # Create tables
+    print("Creating tables...")
     Base.metadata.create_all(bind=engine)
+    print("Tables created.")
 
     # Barcha dachalar ma'lumotlarini tozalaymiz
-    db.query(Listing).delete()
-
+    # db.query(Listing).delete() # Temporarily commented out to avoid data loss if it runs unexpectedly
+    
     # Seed an admin user (if not exists)
-    if not db.query(User).filter(User.email == "admin").first():
+    admin_user = db.query(User).filter(User.email == "admin").first()
+    if not admin_user:
+        print("Creating admin user...")
         admin = User(
             email="admin",
             full_name="Super Admin",
@@ -22,6 +26,9 @@ def init_db(db: Session) -> None:
             status="active"
         )
         db.add(admin)
+        print("Admin user created.")
+    else:
+        print("Admin user already exists.")
         
     db.commit()
 
