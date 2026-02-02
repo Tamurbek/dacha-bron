@@ -26,7 +26,6 @@ services:
       retries: 5
 
   backend:
-    image: ${DOCKER_USERNAME}/dacha-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
@@ -44,7 +43,6 @@ services:
         condition: service_healthy
 
   frontend:
-    image: ${DOCKER_USERNAME}/dacha-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
