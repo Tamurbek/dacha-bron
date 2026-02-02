@@ -110,7 +110,12 @@ const initialListings = [
 
 const isVideo = (url) => {
     if (!url) return false;
-    return url.match(/\.(mp4|webm|ogg|mov|m4v)($|\?)/i) || url.includes('mov_bbb.mp4') || url.includes('youtube.com') || url.includes('youtu.be');
+    const hasVideoExt = url.match(/\.(mp4|webm|ogg|mov|m4v|hevc)($|\?)/i);
+    const isSpecialVideo = url.includes('mov_bbb.mp4') ||
+        url.includes('youtube.com') ||
+        url.includes('youtu.be') ||
+        (url.includes('/proxy/telegram/') && url.match(/\.(mp4|mov|webm)($|\?)/i));
+    return hasVideoExt || isSpecialVideo;
 };
 
 const getYoutubeThumbnail = (url) => {
@@ -418,34 +423,52 @@ export const AdminListings = () => {
         }
     };
 
-    const handleFileUpload = async (e, field) => {
+    const [uploadProgress, setUploadProgress] = useState(0);
+
+    const handleFileUpload = (e, field) => {
         const file = e.target.files[0];
         if (!file) return;
 
         setUploadingField(field);
+        setUploadProgress(0);
+
         const formDataPayload = new FormData();
         formDataPayload.append('file', file);
 
-        try {
-            const response = await fetch('http://localhost:8000/api/v1/upload/file', {
-                method: 'POST',
-                body: formDataPayload,
-            });
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://localhost:8000/api/v1/upload/file', true);
 
-            if (!response.ok) throw new Error('Yuklashda xatolik yuz berdi');
-
-            const data = await response.json();
-
-            if (field === 'video') {
-                setFormData(prev => ({ ...prev, videoUrl: data.url }));
-            } else if (field === 'gallery') {
-                setFormData(prev => ({ ...prev, images: [...prev.images, data.url] }));
+        xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+                const percentComplete = Math.round((event.loaded / event.total) * 100);
+                setUploadProgress(percentComplete);
             }
-        } catch (error) {
-            alert(error.message);
-        } finally {
+        };
+
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                if (field === 'video') {
+                    setFormData(prev => ({ ...prev, videoUrl: data.url }));
+                } else if (field === 'gallery') {
+                    setFormData(prev => ({ ...prev, images: [...prev.images, data.url] }));
+                }
+                setUploadingField(null);
+                setUploadProgress(0);
+            } else {
+                alert('Yuklashda xatolik yuz berdi');
+                setUploadingField(null);
+                setUploadProgress(0);
+            }
+        };
+
+        xhr.onerror = () => {
+            alert('Internet bilan aloqa yo\'q');
             setUploadingField(null);
-        }
+            setUploadProgress(0);
+        };
+
+        xhr.send(formDataPayload);
     };
 
     const filteredListings = listings; // Search is now handled by backend
@@ -903,8 +926,13 @@ export const AdminListings = () => {
 
                                     <div className="space-y-3">
                                         <div className="relative group">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary-600 transition-colors pointer-events-none">
-                                                {uploadingField === 'video' ? <Loader2 size={20} className="animate-spin" /> : <Upload size={20} />}
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary-600 transition-colors pointer-events-none flex items-center space-x-2">
+                                                {uploadingField === 'video' ? (
+                                                    <>
+                                                        <Loader2 size={20} className="animate-spin text-primary-600" />
+                                                        <span className="text-xs font-bold text-primary-600">{uploadProgress}%</span>
+                                                    </>
+                                                ) : <Upload size={20} />}
                                             </div>
                                             <input
                                                 type="file"
@@ -913,7 +941,9 @@ export const AdminListings = () => {
                                                 className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all file:hidden cursor-pointer"
                                             />
                                             <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                                                <span className="text-xs font-bold text-gray-400">Video faylni yuklash</span>
+                                                <span className="text-xs font-bold text-gray-400">
+                                                    {uploadingField === 'video' ? 'Yuklanmoqda...' : 'Video faylni yuklash'}
+                                                </span>
                                             </div>
                                         </div>
 
@@ -987,9 +1017,15 @@ export const AdminListings = () => {
                                                 ))}
                                                 <label className="relative aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/30 overflow-hidden cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-all">
                                                     {uploadingField === 'gallery' ? (
-                                                        <Loader2 size={24} className="text-primary animate-spin mb-1" />
+                                                        <>
+                                                            <Loader2 size={24} className="text-primary animate-spin mb-1" />
+                                                            <span className="text-[10px] font-bold text-primary">{uploadProgress}%</span>
+                                                        </>
                                                     ) : (
-                                                        <Plus size={24} className="text-gray-400 mb-1" />
+                                                        <>
+                                                            <Plus size={24} className="text-gray-400 mb-1" />
+                                                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter text-center px-2 pointer-events-none">Fayl yuklash</span>
+                                                        </>
                                                     )}
                                                     <input
                                                         type="file"
@@ -997,7 +1033,6 @@ export const AdminListings = () => {
                                                         onChange={(e) => handleFileUpload(e, 'gallery')}
                                                         className="hidden"
                                                     />
-                                                    <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter text-center px-2 pointer-events-none">Fayl yuklash</span>
                                                 </label>
                                             </div>
                                         </SortableContext>

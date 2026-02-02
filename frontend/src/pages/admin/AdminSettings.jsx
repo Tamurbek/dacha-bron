@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Settings, Bell, Shield, Moon, Globe, Save, CheckCircle, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings, Bell, Shield, Moon, Globe, Save, CheckCircle, Loader2, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const AdminSettings = () => {
     const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [showSuccess, setShowSuccess] = useState(false);
 
     const [settings, setSettings] = useState({
@@ -11,17 +12,68 @@ export const AdminSettings = () => {
         email: 'info@jizzaxrest.com',
         notifications: true,
         darkMode: false,
-        multiLang: true
+        multiLang: true,
+        botToken: '',
+        channelId: ''
     });
 
-    const handleSave = () => {
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/settings/telegram');
+                if (response.ok) {
+                    const data = await response.json();
+                    setSettings(prev => ({
+                        ...prev,
+                        botToken: data.bot_token || '',
+                        channelId: data.channel_id || ''
+                    }));
+                }
+            } catch (error) {
+                console.error('Error fetching settings:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchSettings();
+    }, []);
+
+    const handleSave = async () => {
         setIsSaving(true);
-        setTimeout(() => {
+        try {
+            const response = await fetch('http://localhost:8000/api/v1/settings/telegram', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    bot_token: settings.botToken,
+                    channel_id: settings.channelId
+                })
+            });
+
+            if (response.ok) {
+                setShowSuccess(true);
+                setTimeout(() => setShowSuccess(false), 3000);
+            } else {
+                alert('Xatolik yuz berdi');
+            }
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            alert('Server bilan aloqa yo\'q');
+        } finally {
             setIsSaving(false);
-            setShowSuccess(true);
-            setTimeout(() => setShowSuccess(false), 3000);
-        }, 1500);
+        }
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="animate-spin text-primary" size={32} />
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-4xl space-y-8 animate-in fade-in duration-500">
@@ -56,7 +108,37 @@ export const AdminSettings = () => {
                         </div>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-6 pt-4 border-t border-gray-100 dark:border-gray-800">
+                        <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center">
+                            <Send size={16} className="mr-2" />
+                            Telegram Sozlamalari (Fayl saqlash uchun)
+                        </h4>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-white">
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Bot Token</label>
+                                <input
+                                    type="password"
+                                    placeholder="8313441569:AAFCT..."
+                                    value={settings.botToken}
+                                    onChange={(e) => setSettings({ ...settings, botToken: e.target.value })}
+                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Kanal ID (yoki Username)</label>
+                                <input
+                                    type="text"
+                                    placeholder="@my_channel_id"
+                                    value={settings.channelId}
+                                    onChange={(e) => setSettings({ ...settings, channelId: e.target.value })}
+                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6 pt-4 border-t border-gray-100 dark:border-gray-800">
                         <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Tizim funktsiyalari</h4>
 
                         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-transparent hover:border-primary/20 transition-all">
@@ -92,24 +174,6 @@ export const AdminSettings = () => {
                                 className={`w-12 h-6 rounded-full transition-colors relative ${settings.darkMode ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-700'}`}
                             >
                                 <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.darkMode ? 'translate-x-6' : ''}`} />
-                            </button>
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-transparent hover:border-primary/20 transition-all">
-                            <div className="flex items-center space-x-4">
-                                <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl text-orange-600">
-                                    <Globe size={20} />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-bold text-gray-900 dark:text-white">Ko'p tilli rejim</p>
-                                    <p className="text-xs text-gray-500">O'zbek, Rus va Ingliz tillari</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setSettings({ ...settings, multiLang: !settings.multiLang })}
-                                className={`w-12 h-6 rounded-full transition-colors relative ${settings.multiLang ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-700'}`}
-                            >
-                                <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.multiLang ? 'translate-x-6' : ''}`} />
                             </button>
                         </div>
                     </div>

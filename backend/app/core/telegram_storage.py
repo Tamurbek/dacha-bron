@@ -3,20 +3,21 @@ from app.core.config import settings
 from fastapi import HTTPException
 import os
 
-async def upload_to_telegram(file_content: bytes, filename: str) -> str:
+async def upload_to_telegram(file_content: bytes, filename: str, bot_token: str = None, channel_id: str = None) -> str:
     """
     Uploads a file to a Telegram channel and returns the message link or file_id.
-    Note: Telegram direct file links require a bot token and are temporary.
-    For public channels, we can return the t.me link.
     """
-    if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHANNEL_ID:
+    token = bot_token or settings.TELEGRAM_BOT_TOKEN
+    chat_id = channel_id or settings.TELEGRAM_CHANNEL_ID
+
+    if not token or not chat_id:
         raise HTTPException(status_code=500, detail="Telegram Bot settings not configured")
 
-    url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
+    url = f"https://api.telegram.org/bot{token}/sendDocument"
     
     async with httpx.AsyncClient() as client:
         files = {'document': (filename, file_content)}
-        data = {'chat_id': settings.TELEGRAM_CHANNEL_ID}
+        data = {'chat_id': chat_id}
         
         response = await client.post(url, data=data, files=files)
         res_data = response.json()
@@ -24,20 +25,32 @@ async def upload_to_telegram(file_content: bytes, filename: str) -> str:
         if not res_data.get("ok"):
             raise HTTPException(status_code=500, detail=f"Telegram upload failed: {res_data.get('description')}")
         
-        # If the channel is public, we can construct a link like t.me/channel/message_id
-        # channel_id usually starts with -100 for private channels
-        # For professional use, we often use file_id and a proxy, or telegra.ph
+        # Extract file_id to use with a proxy
+        # The document object is inside res_data["result"]["document"]
+        doc = res_data["result"].get("document")
+        video = res_data["result"].get("video")
+        photo = res_data["result"].get("photo")
         
-        message_id = res_data["result"]["message_id"]
-        channel_id_str = str(settings.TELEGRAM_CHANNEL_ID).replace("-100", "")
-        
-        if settings.TELEGRAM_CHANNEL_ID.startswith("@"):
-            channel_name = settings.TELEGRAM_CHANNEL_ID.replace("@", "")
-            return f"https://t.me/{channel_name}/{message_id}"
-        else:
-            # For private channels, we can't easily get a public URL without a proxy
-            # So we return the file_id or a placeholder
-            return f"https://t.me/c/{channel_id_str}/{message_id}"
+        file_id = ""
+        if doc:
+            file_id = doc.get("file_id")
+        elif video:
+            file_id = video.get("file_id")
+        elif photo:
+            # Photo is a list of sizes, get the last one (largest)
+            file_id = photo[-1].get("file_id")
+            
+        if not file_id:
+            # Fallback for other types if structure differs
+            # Attempt to find any file_id recursively or just fail gracefully
+             message_id = res_data["result"]["message_id"]
+             return f"https://t.me/{str(chat_id).replace('@', '')}/{message_id}"
+
+        # Return a proxy URL that our backend will handle
+        # We assume the backend is running on localhost:8000 (or request.base_url in real app)
+        # But here we return a relative path or a known base. 
+        # Better to return a special prefix we can detect.
+        return f"/api/v1/proxy/telegram/{file_id}"
 
 async def upload_to_telegraph(file_content: bytes) -> str:
     """
@@ -57,7 +70,7 @@ async def upload_to_telegraph(file_content: bytes) -> str:
         else:
             raise HTTPException(status_code=500, detail="Telegra.ph upload failed")
 
-async def upload_file_to_storage(file_content: bytes, filename: str) -> str:
+async def upload_file_to_storage(file_content: bytes, filename: str, bot_token: str = None, channel_id: str = None) -> str:
     """
     Main utility to choose the best storage.
     For images and small videos, telegra.ph is best for direct URLs.
@@ -70,6 +83,6 @@ async def upload_file_to_storage(file_content: bytes, filename: str) -> str:
             return await upload_to_telegraph(file_content)
         except:
             # Fallback to Telegram if telegra.ph fails
-            return await upload_to_telegram(file_content, filename)
+            return await upload_to_telegram(file_content, filename, bot_token, channel_id)
     else:
-        return await upload_to_telegram(file_content, filename)
+        return await upload_to_telegram(file_content, filename, bot_token, channel_id)

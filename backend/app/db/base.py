@@ -4,3 +4,4 @@ from app.db.base_class import Base  # noqa
 from app.models.user import User  # noqa
 from app.models.listing import Listing  # noqa
 from app.models.booking import Booking  # noqa
+from app.models.settings import Settings  # noqa

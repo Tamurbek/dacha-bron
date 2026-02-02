@@ -8,13 +8,18 @@ from PIL import Image
 import pillow_heif
 
 from app.core.telegram_storage import upload_file_to_storage
+from sqlalchemy.orm import Session
+from app.db.session import get_db
+from app.core.db_settings import get_telegram_settings, env_settings
+
+from fastapi import Depends
 
 pillow_heif.register_heif_opener()
 
 router = APIRouter()
 
 @router.post("/file")
-async def upload_file(request: Request, file: UploadFile = File(...)) -> Any:
+async def upload_file(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)) -> Any:
     print(f"Received file: {file.filename}, content_type: {file.content_type}")
     
     # Validate file type (including iPhone formats)
@@ -49,24 +54,31 @@ async def upload_file(request: Request, file: UploadFile = File(...)) -> Any:
         except Exception as e:
             print(f"Conversion failed: {e}")
             # Proceed even if conversion failed, attempting upload of original
+            pass
 
+    # Fetch settings from DB
+    tg_settings = get_telegram_settings(db)
     # Upload strategy:
     # 1. Try generic storage (Telegram/Telegra.ph)
     # 2. If it returns a non-direct link (t.me) or fails, we cannot save locally per user request.
     
     try:
-        url = await upload_file_to_storage(content, file.filename)
+        url = await upload_file_to_storage(
+            content, 
+            file.filename, 
+            bot_token=tg_settings["bot_token"], 
+            channel_id=tg_settings["channel_id"]
+        )
         print(f"Storage upload result: {url}")
         
-        if "t.me/" in url:
-            # t.me links are not direct image links, so they won't render in <img> tags.
-            # Since we cannot save locally, we must reject this upload or warn the user.
-            # For now, we will allow it but it might not display correctly as an image source, 
-            # unless the frontend knows how to handle it (it doesn't).
-            # However, to strictly follow "do not save to folder", we return what we got.
-            # Ideally, we should raise an error if <img> display is critical.
-            # But the user might want the link anyway. 
-            pass 
+        if url.startswith("/api/v1/proxy/telegram/"):
+            # Append extension for frontend detection
+            if not url.endswith(file_ext):
+                url = f"{url}{file_ext}"
+                
+            # Construct absolute URL
+            base = str(request.base_url).rstrip('/')
+            url = f"{base}{url}"
 
         return {"url": url, "filename": file.filename}
             
@@ -75,9 +87,9 @@ async def upload_file(request: Request, file: UploadFile = File(...)) -> Any:
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 @router.post("/files")
-async def upload_multiple_files(request: Request, files: List[UploadFile] = File(...)) -> Any:
+async def upload_multiple_files(request: Request, files: List[UploadFile] = File(...), db: Session = Depends(get_db)) -> Any:
     uploaded_files = []
     for file in files:
-        res = await upload_file(request, file)
+        res = await upload_file(request, file, db)
         uploaded_files.append(res)
     return uploaded_files

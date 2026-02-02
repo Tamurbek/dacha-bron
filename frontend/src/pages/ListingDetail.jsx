@@ -12,7 +12,15 @@ import { regions } from '../data/regions';
 
 const isVideo = (url) => {
     if (!url) return false;
-    return url.match(/\.(mp4|webm|ogg|mov|m4v)($|\?)/i) || url.includes('mov_bbb.mp4') || url.includes('youtube.com') || url.includes('youtu.be');
+    // Check for common video extensions
+    const hasVideoExt = url.match(/\.(mp4|webm|ogg|mov|m4v|hevc)($|\?)/i);
+    // Check for known video patterns
+    const isSpecialVideo = url.includes('mov_bbb.mp4') ||
+        url.includes('youtube.com') ||
+        url.includes('youtu.be') ||
+        (url.includes('/proxy/telegram/') && url.match(/\.(mp4|mov|webm)($|\?)/i));
+
+    return hasVideoExt || isSpecialVideo;
 };
 
 const getYoutubeThumbnail = (url) => {
