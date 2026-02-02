@@ -51,14 +51,23 @@ services:
       args:
         - VITE_API_URL=${VITE_API_URL}
     restart: always
+    depends_on:
+      - backend
+
+  proxy:
+    image: caddy:2-alpine
+    restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - /etc/letsencrypt/live/jizzaxrest.uz/fullchain.pem:/etc/nginx/ssl/fullchain.pem:ro
-      - /etc/letsencrypt/live/jizzaxrest.uz/privkey.pem:/etc/nginx/ssl/privkey.pem:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
     depends_on:
-      - backend
+      - frontend
 
 volumes:
   postgres_data:
+  caddy_data:
+  caddy_config:

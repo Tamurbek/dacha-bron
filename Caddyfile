@@ -1,0 +1,16 @@
+jizzaxrest.uz, www.jizzaxrest.uz {
+    # Frontendni xizmat ko'rsatish
+    handle /* {
+        reverse_proxy frontend:80
+    }
+
+    # API so'rovlarini Backendga yo'naltirish
+    handle /api/v1/* {
+        reverse_proxy backend:8000
+    }
+
+    # Loglar (muammolarni aniqlash uchun)
+    log {
+        output file /var/log/caddy/access.log
+    }
+}
