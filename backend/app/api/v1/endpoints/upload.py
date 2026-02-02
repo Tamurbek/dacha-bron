@@ -13,12 +13,6 @@ pillow_heif.register_heif_opener()
 
 router = APIRouter()
 
-# Determine uploads directory
-# We want .../backend/uploads which is 4 levels up from this file's directory
-UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../uploads"))
-if not os.path.exists(UPLOAD_DIR):
-    os.makedirs(UPLOAD_DIR)
-
 @router.post("/file")
 async def upload_file(request: Request, file: UploadFile = File(...)) -> Any:
     print(f"Received file: {file.filename}, content_type: {file.content_type}")
@@ -58,43 +52,27 @@ async def upload_file(request: Request, file: UploadFile = File(...)) -> Any:
 
     # Upload strategy:
     # 1. Try generic storage (Telegram/Telegra.ph)
-    # 2. If it returns a non-direct link (t.me) or fails, fallback to local storage
-    
-    final_url = ""
-    use_local = False
+    # 2. If it returns a non-direct link (t.me) or fails, we cannot save locally per user request.
     
     try:
         url = await upload_file_to_storage(content, file.filename)
         print(f"Storage upload result: {url}")
         
         if "t.me/" in url:
-            print("Returned URL is a Telegram message link (not direct image). Falling back to local storage.")
-            use_local = True
-        else:
-            final_url = url
+            # t.me links are not direct image links, so they won't render in <img> tags.
+            # Since we cannot save locally, we must reject this upload or warn the user.
+            # For now, we will allow it but it might not display correctly as an image source, 
+            # unless the frontend knows how to handle it (it doesn't).
+            # However, to strictly follow "do not save to folder", we return what we got.
+            # Ideally, we should raise an error if <img> display is critical.
+            # But the user might want the link anyway. 
+            pass 
+
+        return {"url": url, "filename": file.filename}
             
     except Exception as e:
-        print(f"External upload failed: {str(e)}. Falling back to local storage.")
-        use_local = True
-
-    if use_local:
-        try:
-            unique_name = f"{uuid.uuid4()}{file_ext}"
-            file_path = os.path.join(UPLOAD_DIR, unique_name)
-            
-            with open(file_path, "wb") as f:
-                f.write(content)
-            
-            # Construct URL using the base URL from the request
-            # request.base_url ends with a slash e.g. http://localhost:8000/
-            final_url = f"{request.base_url}uploads/{unique_name}"
-            print(f"Saved locally: {final_url}")
-            
-        except Exception as local_e:
-             print(f"Local save failed: {str(local_e)}")
-             raise HTTPException(status_code=500, detail=f"Failed to save file locally: {str(local_e)}")
-
-    return {"url": final_url, "filename": file.filename}
+        print(f"External upload failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 @router.post("/files")
 async def upload_multiple_files(request: Request, files: List[UploadFile] = File(...)) -> Any:

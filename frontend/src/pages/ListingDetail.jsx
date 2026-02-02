@@ -7,6 +7,7 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { BookingCard } from '../components/BookingCard';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { CustomVideoPlayer } from '../components/ui/CustomVideoPlayer';
 import { regions } from '../data/regions';
 
 const isVideo = (url) => {
@@ -156,14 +157,10 @@ export function ListingDetail() {
                                 allowFullScreen
                             ></iframe>
                         ) : (
-                            <video
+                            <CustomVideoPlayer
                                 src={listing.videoUrl}
-                                className="absolute inset-0 w-full h-full object-cover"
-                                controls
-                                autoPlay
-                                muted
-                                loop
-                                playsInline
+                                className="absolute inset-0 w-full h-full"
+                                autoPlay={true}
                             />
                         )
                     ) : (
@@ -171,14 +168,10 @@ export function ListingDetail() {
                             const currentMedia = listing.images[listing.videoUrl ? mainImage - 1 : mainImage];
                             const isLocalVideo = isVideo(currentMedia) && !currentMedia.includes('youtube');
                             return isLocalVideo ? (
-                                <video
+                                <CustomVideoPlayer
                                     src={currentMedia}
-                                    className="absolute inset-0 w-full h-full object-cover"
-                                    controls
-                                    muted
-                                    loop
-                                    autoPlay
-                                    playsInline
+                                    className="absolute inset-0 w-full h-full"
+                                    autoPlay={true}
                                 />
                             ) : currentMedia?.includes('youtube.com') || currentMedia?.includes('youtu.be') ? (
                                 <iframe
@@ -190,8 +183,10 @@ export function ListingDetail() {
                             ) : (
                                 <img
                                     src={currentMedia}
-                                    className="absolute inset-0 w-full h-full object-cover"
+                                    className="absolute inset-0 w-full h-full object-cover select-none"
                                     alt="Main"
+                                    draggable="false"
+                                    onContextMenu={(e) => e.preventDefault()}
                                 />
                             );
                         })()
@@ -228,13 +223,28 @@ export function ListingDetail() {
                             {listing.videoUrl && (listing.videoUrl.includes('youtube.com') || listing.videoUrl.includes('youtu.be')) ? (
                                 <img
                                     src={getYoutubeThumbnail(listing.videoUrl)}
-                                    className="w-full h-full object-cover blur-[2px]"
+                                    className="w-full h-full object-cover blur-[2px] select-none"
                                     alt="Video Thumb"
+                                    draggable="false"
+                                    onContextMenu={(e) => e.preventDefault()}
                                 />
                             ) : listing.videoUrl ? (
-                                <video src={listing.videoUrl} className="w-full h-full object-cover blur-[2px]" muted />
+                                <video
+                                    src={listing.videoUrl}
+                                    className="w-full h-full object-cover blur-[2px]"
+                                    muted
+                                    disablePictureInPicture
+                                    controlsList="nodownload"
+                                    onContextMenu={(e) => e.preventDefault()}
+                                />
                             ) : (
-                                <img src={listing.images[0] || ''} className="w-full h-full object-cover blur-[2px]" alt="Video Thumb" />
+                                <img
+                                    src={listing.images[0] || ''}
+                                    className="w-full h-full object-cover blur-[2px] select-none"
+                                    alt="Video Thumb"
+                                    draggable="false"
+                                    onContextMenu={(e) => e.preventDefault()}
+                                />
                             )}
                         </div>
                     )}
@@ -256,16 +266,28 @@ export function ListingDetail() {
                                 {isYoutube ? (
                                     <img
                                         src={getYoutubeThumbnail(img)}
-                                        className="absolute inset-0 w-full h-full object-cover"
+                                        className="absolute inset-0 w-full h-full object-cover select-none"
                                         alt={`Thumb ${actualIndex}`}
+                                        draggable="false"
+                                        onContextMenu={(e) => e.preventDefault()}
                                     />
                                 ) : isLocalVideo ? (
-                                    <video src={img} className="absolute inset-0 w-full h-full object-cover" muted playsInline />
+                                    <video
+                                        src={img}
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                        muted
+                                        playsInline
+                                        disablePictureInPicture
+                                        controlsList="nodownload"
+                                        onContextMenu={(e) => e.preventDefault()}
+                                    />
                                 ) : (
                                     <img
                                         src={img}
-                                        className="absolute inset-0 w-full h-full object-cover"
+                                        className="absolute inset-0 w-full h-full object-cover select-none"
                                         alt={`Thumb ${actualIndex}`}
+                                        draggable="false"
+                                        onContextMenu={(e) => e.preventDefault()}
                                     />
                                 )}
                             </div>

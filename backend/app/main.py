@@ -21,11 +21,7 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api/v1")
 
-# Mount uploads directory
-uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "uploads")
-if not os.path.exists(uploads_dir):
-    os.makedirs(uploads_dir)
-app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+# Uploads directory static mount removed as we now use external storage
 
 @app.get("/")
 def root():
