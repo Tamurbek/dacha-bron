@@ -3,6 +3,7 @@ from app.db.base import Base
 from app.db.session import engine
 from app.models.listing import Listing
 from app.models.user import User
+from app.models.amenity import Amenity
 
 def init_db(db: Session) -> None:
     # Create tables

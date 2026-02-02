@@ -54,8 +54,10 @@ const StatCard = ({ title, value, subValue, icon: Icon, trend, percentage, color
 
 export const AdminDashboard = () => {
     const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.attributeName === 'class') {
@@ -128,51 +130,53 @@ export const AdminDashboard = () => {
                         </select>
                     </div>
                     <div className="h-[350px] w-full">
-                        <ResponsiveContainer width="99%" height="100%">
-                            <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-                                <defs>
-                                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartColors.grid} />
-                                <XAxis
-                                    dataKey="name"
-                                    axisLine={false}
-                                    tickLine={false}
-                                    tick={{ fill: chartColors.text, fontSize: 10, fontWeight: 700 }}
-                                    dy={10}
-                                />
-                                <YAxis
-                                    axisLine={false}
-                                    tickLine={false}
-                                    width={80}
-                                    tick={{ fill: chartColors.text, fontSize: 10, fontWeight: 700 }}
-                                    tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-                                />
-                                <Tooltip
-                                    contentStyle={{
-                                        borderRadius: '16px',
-                                        border: 'none',
-                                        backgroundColor: chartColors.tooltip,
-                                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                                        padding: '12px 16px',
-                                        color: isDark ? '#fff' : '#000'
-                                    }}
-                                    itemStyle={{ color: '#3b82f6', fontWeight: 700 }}
-                                    formatter={(value) => [`${value.toLocaleString()} so'm`, 'Daromad']}
-                                />
-                                <Area
-                                    type="monotone"
-                                    dataKey="value"
-                                    stroke="#3b82f6"
-                                    strokeWidth={4}
-                                    fillOpacity={1}
-                                    fill="url(#colorValue)"
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                        {mounted && (
+                            <ResponsiveContainer width="99%" height="100%">
+                                <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                                    <defs>
+                                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartColors.grid} />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: chartColors.text, fontSize: 10, fontWeight: 700 }}
+                                        dy={10}
+                                    />
+                                    <YAxis
+                                        axisLine={false}
+                                        tickLine={false}
+                                        width={80}
+                                        tick={{ fill: chartColors.text, fontSize: 10, fontWeight: 700 }}
+                                        tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{
+                                            borderRadius: '16px',
+                                            border: 'none',
+                                            backgroundColor: chartColors.tooltip,
+                                            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                                            padding: '12px 16px',
+                                            color: isDark ? '#fff' : '#000'
+                                        }}
+                                        itemStyle={{ color: '#3b82f6', fontWeight: 700 }}
+                                        formatter={(value) => [`${value.toLocaleString()} so'm`, 'Daromad']}
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="value"
+                                        stroke="#3b82f6"
+                                        strokeWidth={4}
+                                        fillOpacity={1}
+                                        fill="url(#colorValue)"
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        )}
                     </div>
                 </div>
 
