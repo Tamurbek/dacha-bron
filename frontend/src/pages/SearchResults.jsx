@@ -25,16 +25,46 @@ export function SearchResults() {
     });
     const [sort, setSort] = useState('popular');
 
-    useEffect(() => {
+    const [listings, setListings] = useState([]);
+    const [totalItems, setTotalItems] = useState(0);
+
+    const fetchListings = async () => {
         setIsLoading(true);
-        const timer = setTimeout(() => setIsLoading(false), 700);
-        return () => clearTimeout(timer);
-    }, [searchParams]);
+        try {
+            const params = new URLSearchParams({
+                status: 'active',
+                size: limit,
+                region: region || '',
+                search: searchParams.get('q') || ''
+            });
+
+            const response = await fetch(`http://localhost:8000/api/v1/listings/?${params.toString()}`);
+            if (!response.ok) throw new Error('Ma\'lumotlarni yuklashda xatolik');
+            const data = await response.json();
+
+            const mappedData = data.items.map(l => ({
+                ...l,
+                pricePerNight: l.price_per_night,
+                guestsMax: l.guests_max,
+                videoUrl: l.video_url
+            }));
+
+            setListings(mappedData);
+            setTotalItems(data.total);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchListings();
+    }, [searchParams, region, limit]);
 
     const filteredListings = useMemo(() => {
         let result = [...listings];
 
-        if (region) result = result.filter(l => l.region === region);
         if (minGuests) result = result.filter(l => l.guestsMax >= parseInt(minGuests));
         if (minRooms) result = result.filter(l => l.rooms >= parseInt(minRooms));
         if (minPrice) result = result.filter(l => l.pricePerNight >= parseInt(minPrice));
@@ -54,7 +84,7 @@ export function SearchResults() {
         if (sort === 'popular') result.sort((a, b) => b.rating - a.rating);
 
         return result;
-    }, [region, minGuests, minRooms, minPrice, maxPrice, amenities, sort]);
+    }, [listings, minGuests, minRooms, minPrice, maxPrice, amenities, sort]);
 
     const toggleAmenity = (key) => {
         setAmenities(prev => ({ ...prev, [key]: !prev[key] }));

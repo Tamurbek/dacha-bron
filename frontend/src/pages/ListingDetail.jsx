@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n/useI18n';
 import { listings } from '../data/listings';
-import { Star, MapPin, Users, Bed, Bath, Wifi, Wind, Flame, Waves, Coffee, Utensils, Share2, Heart, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { Star, MapPin, Users, Bed, Bath, Wifi, Wind, Flame, Waves, Coffee, Utensils, Share2, Heart, ChevronLeft, ChevronRight, Play, Smile } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { BookingCard } from '../components/BookingCard';
@@ -11,7 +11,23 @@ import { regions } from '../data/regions';
 
 const isVideo = (url) => {
     if (!url) return false;
-    return url.match(/\.(mp4|webm|ogg|mov|m4v)($|\?)/i) || url.includes('mov_bbb.mp4');
+    return url.match(/\.(mp4|webm|ogg|mov|m4v)($|\?)/i) || url.includes('mov_bbb.mp4') || url.includes('youtube.com') || url.includes('youtu.be');
+};
+
+const getYoutubeThumbnail = (url) => {
+    if (!url) return '';
+    const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    const videoId = (match && match[2].length === 11) ? match[2] : null;
+    return videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : '';
+};
+
+const getYoutubeEmbedUrl = (url) => {
+    if (!url) return '';
+    const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    const videoId = (match && match[2].length === 11) ? match[2] : null;
+    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1` : url;
 };
 
 export function ListingDetail() {
@@ -89,7 +105,14 @@ export function ListingDetail() {
         bbq: Utensils,
         wifi: Wifi,
         ac: Wind,
-        kitchen: Coffee
+        kitchen: Coffee,
+        Waves, Flame, Utensils, Wifi, Wind, Coffee, Smile,
+        'WI-FI': Wifi,
+        'KONDITSIONER': Wind,
+        'OSHXONA': Coffee,
+        'HOVUZ': Waves,
+        'SAUNA': Flame,
+        'BARBEKYU': Utensils
     };
 
     return (
@@ -125,23 +148,49 @@ export function ListingDetail() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[300px] md:h-[500px] mb-12">
                 <div className="md:col-span-3 relative rounded-3xl overflow-hidden group bg-gray-100 dark:bg-gray-800">
                     {listing.videoUrl && mainImage === 0 ? (
-                        <video
-                            src={listing.videoUrl}
-                            className="w-full h-full object-cover"
-                            controls
-                            autoPlay
-                            muted
-                            loop
-                        />
+                        listing.videoUrl.includes('youtube.com') || listing.videoUrl.includes('youtu.be') ? (
+                            <iframe
+                                src={getYoutubeEmbedUrl(listing.videoUrl)}
+                                className="absolute inset-0 w-full h-full"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            ></iframe>
+                        ) : (
+                            <video
+                                src={listing.videoUrl}
+                                className="absolute inset-0 w-full h-full object-cover"
+                                controls
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                            />
+                        )
                     ) : (
                         (() => {
                             const currentMedia = listing.images[listing.videoUrl ? mainImage - 1 : mainImage];
-                            return isVideo(currentMedia) ? (
-                                <video src={currentMedia} className="w-full h-full object-cover" controls muted loop autoPlay />
+                            const isLocalVideo = isVideo(currentMedia) && !currentMedia.includes('youtube');
+                            return isLocalVideo ? (
+                                <video
+                                    src={currentMedia}
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                    controls
+                                    muted
+                                    loop
+                                    autoPlay
+                                    playsInline
+                                />
+                            ) : currentMedia?.includes('youtube.com') || currentMedia?.includes('youtu.be') ? (
+                                <iframe
+                                    src={getYoutubeEmbedUrl(currentMedia)}
+                                    className="absolute inset-0 w-full h-full"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                ></iframe>
                             ) : (
                                 <img
                                     src={currentMedia}
-                                    className="w-full h-full object-cover"
+                                    className="absolute inset-0 w-full h-full object-cover"
                                     alt="Main"
                                 />
                             );
@@ -173,26 +222,52 @@ export function ListingDetail() {
                             className={`rounded-2xl overflow-hidden cursor-pointer border-4 transition-all relative ${mainImage === 0 ? 'border-primary-600' : 'border-transparent'}`}
                             onClick={() => setMainImage(0)}
                         >
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
                                 <Play className="w-8 h-8 text-white fill-white" />
                             </div>
-                            <img src={listing.images[0]} className="w-full h-full object-cover blur-[2px]" alt="Video Thumb" />
+                            {listing.videoUrl && (listing.videoUrl.includes('youtube.com') || listing.videoUrl.includes('youtu.be')) ? (
+                                <img
+                                    src={getYoutubeThumbnail(listing.videoUrl)}
+                                    className="w-full h-full object-cover blur-[2px]"
+                                    alt="Video Thumb"
+                                />
+                            ) : listing.videoUrl ? (
+                                <video src={listing.videoUrl} className="w-full h-full object-cover blur-[2px]" muted />
+                            ) : (
+                                <img src={listing.images[0] || ''} className="w-full h-full object-cover blur-[2px]" alt="Video Thumb" />
+                            )}
                         </div>
                     )}
                     {listing.images.slice(0, listing.videoUrl ? 2 : 3).map((img, i) => {
                         const actualIndex = listing.videoUrl ? i + 1 : i;
+                        const isYoutube = img.includes('youtube.com') || img.includes('youtu.be');
+                        const isLocalVideo = isVideo(img) && !isYoutube;
                         return (
                             <div
                                 key={i}
                                 className={`rounded-2xl overflow-hidden cursor-pointer border-4 transition-all relative ${mainImage === actualIndex ? 'border-primary-600' : 'border-transparent'}`}
                                 onClick={() => setMainImage(actualIndex)}
                             >
-                                {isVideo(img) && (
+                                {(isYoutube || isLocalVideo) && (
                                     <div className="absolute inset-0 bg-black/20 flex items-center justify-center z-10">
                                         <Play className="w-6 h-6 text-white fill-white" />
                                     </div>
                                 )}
-                                <img src={img} className="w-full h-full object-cover" alt={`Thumb ${actualIndex}`} />
+                                {isYoutube ? (
+                                    <img
+                                        src={getYoutubeThumbnail(img)}
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                        alt={`Thumb ${actualIndex}`}
+                                    />
+                                ) : isLocalVideo ? (
+                                    <video src={img} className="absolute inset-0 w-full h-full object-cover" muted playsInline />
+                                ) : (
+                                    <img
+                                        src={img}
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                        alt={`Thumb ${actualIndex}`}
+                                    />
+                                )}
                             </div>
                         );
                     })}
@@ -234,9 +309,9 @@ export function ListingDetail() {
                                 return (
                                     <div key={key} className={`flex items-center space-x-3 ${value ? 'text-gray-900 dark:text-gray-100' : 'text-gray-300 dark:text-gray-600 line-through'}`}>
                                         <div className={`p-2 rounded-xl bg-gray-50 dark:bg-gray-900 ${value ? 'text-primary-600' : 'text-gray-300'}`}>
-                                            {Icon && <Icon className="w-6 h-6" />}
+                                            {Icon ? <Icon className="w-6 h-6" /> : <Smile className="w-6 h-6" />}
                                         </div>
-                                        <span className="font-medium uppercase text-xs">{t(key)}</span>
+                                        <span className="font-medium uppercase text-xs">{t(key) === key ? key : t(key)}</span>
                                     </div>
                                 )
                             })}

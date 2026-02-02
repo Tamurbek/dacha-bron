@@ -13,7 +13,8 @@ import {
     Search,
     Plus,
     Sun,
-    Moon
+    Moon,
+    Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from '../../components/Logo';
@@ -64,6 +65,7 @@ export const AdminLayout = () => {
     const menuItems = [
         { path: '/admin', icon: LayoutDashboard, label: 'Boshqaruv' },
         { path: '/admin/listings', icon: Home, label: 'Dachalar' },
+        { path: '/admin/amenities', icon: Sparkles, label: 'Qulayliklar' },
         { path: '/admin/bookings', icon: CalendarCheck, label: 'Buyurtmalar' },
         { path: '/admin/users', icon: Users, label: 'Foydalanuvchilar' },
     ];

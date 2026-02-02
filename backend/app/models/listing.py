@@ -18,5 +18,6 @@ class Listing(Base):
     images = Column(JSON) # List of image URLs
     video_url = Column(String, nullable=True) # URL of a video file
     description = Column(Text)
+    status = Column(String, default="active") # 'active' or 'inactive'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

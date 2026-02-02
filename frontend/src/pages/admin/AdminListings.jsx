@@ -19,9 +19,49 @@ import {
     LayoutGrid,
     Table as TableIcon,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Waves,
+    Flame,
+    Utensils,
+    Wifi,
+    Wind,
+    Coffee,
+    Users,
+    Bed,
+    Bath,
+    Smile,
+    GripVertical
 } from 'lucide-react';
+
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    rectSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+const iconMap = {
+    Waves,
+    Flame,
+    Utensils,
+    Wifi,
+    Wind,
+    Coffee,
+    Smile
+};
 import { motion, AnimatePresence } from 'framer-motion';
+import { regions } from '../../data/regions';
 
 const initialListings = [
     {
@@ -70,7 +110,82 @@ const initialListings = [
 
 const isVideo = (url) => {
     if (!url) return false;
-    return url.match(/\.(mp4|webm|ogg|mov|m4v)($|\?)/i) || url.includes('mov_bbb.mp4');
+    return url.match(/\.(mp4|webm|ogg|mov|m4v)($|\?)/i) || url.includes('mov_bbb.mp4') || url.includes('youtube.com') || url.includes('youtu.be');
+};
+
+const getYoutubeThumbnail = (url) => {
+    if (!url) return '';
+    let videoId = '';
+    if (url.includes('youtube.com/watch?v=')) {
+        videoId = url.split('v=')[1].split('&')[0];
+    } else if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1].split('?')[0];
+    } else if (url.includes('youtube.com/embed/')) {
+        videoId = url.split('embed/')[1].split('?')[0];
+    }
+    return videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : '';
+};
+
+const getYoutubeEmbedUrl = (url) => {
+    if (!url) return '';
+    let videoId = '';
+    if (url.includes('youtube.com/watch?v=')) {
+        videoId = url.split('v=')[1].split('&')[0];
+    } else if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1].split('?')[0];
+    } else if (url.includes('youtube.com/embed/')) {
+        videoId = url.split('embed/')[1].split('?')[0];
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+};
+
+const SortableImage = ({ img, index, onRemove }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({ id: img });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 101 : 'auto',
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`relative aspect-square rounded-2xl overflow-hidden group ring-1 ring-gray-100 dark:ring-gray-800 shadow-sm bg-gray-100 dark:bg-gray-800 ${isDragging ? 'opacity-50' : ''}`}
+        >
+            {img.includes('youtube.com') || img.includes('youtu.be') ? (
+                <img src={getYoutubeThumbnail(img)} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            ) : isVideo(img) ? (
+                <video src={img} className="w-full h-full object-cover" muted />
+            ) : (
+                <img src={img} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            ) || <div className="w-full h-full bg-gray-200" />}
+
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+                <div
+                    {...attributes}
+                    {...listeners}
+                    className="p-2 bg-white/20 backdrop-blur-md text-white rounded-xl cursor-grab active:cursor-grabbing hover:bg-white/40 transition-colors"
+                >
+                    <GripVertical size={16} />
+                </div>
+                <button
+                    onClick={() => onRemove(index)}
+                    className="p-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors shadow-lg"
+                >
+                    <X size={16} />
+                </button>
+            </div>
+        </div>
+    );
 };
 
 export const AdminListings = () => {
@@ -84,6 +199,7 @@ export const AdminListings = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [pageSize] = useState(10);
+    const [availableAmenities, setAvailableAmenities] = useState([]);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -93,20 +209,66 @@ export const AdminListings = () => {
         description: '',
         status: 'active',
         images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400'],
-        videoUrl: ''
+        videoUrl: '',
+        guests_max: 10,
+        rooms: 4,
+        beds: 5,
+        baths: 2,
+        amenities: {
+            pool: false,
+            sauna: false,
+            bbq: false,
+            wifi: false,
+            ac: false,
+            kitchen: false
+        }
     });
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+
+        if (active.id !== over.id) {
+            setFormData((prev) => {
+                const oldIndex = prev.images.indexOf(active.id);
+                const newIndex = prev.images.indexOf(over.id);
+                return {
+                    ...prev,
+                    images: arrayMove(prev.images, oldIndex, newIndex),
+                };
+            });
+        }
+    };
 
     const handleOpenModal = (listing = null) => {
         if (listing) {
             setEditingListing(listing);
             setFormData({
-                name: listing.name,
+                name: listing.name || listing.title,
                 location: listing.location,
-                price: listing.price,
+                price: listing.price || listing.price_per_night,
                 description: listing.description || '',
-                status: listing.status,
+                status: listing.status || 'active',
                 images: listing.images || [listing.image],
-                videoUrl: listing.videoUrl || ''
+                videoUrl: listing.videoUrl || listing.video_url || '',
+                guests_max: listing.guests_max || 10,
+                rooms: listing.rooms || 4,
+                beds: listing.beds || 5,
+                baths: listing.baths || 2,
+                amenities: listing.amenities || {
+                    pool: false,
+                    sauna: false,
+                    bbq: false,
+                    wifi: false,
+                    ac: false,
+                    kitchen: false
+                }
             });
         } else {
             setEditingListing(null);
@@ -117,19 +279,27 @@ export const AdminListings = () => {
                 description: '',
                 status: 'active',
                 images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400'],
-                videoUrl: ''
+                videoUrl: '',
+                guests_max: 10,
+                rooms: 4,
+                beds: 5,
+                baths: 2,
+                amenities: {
+                    pool: false,
+                    sauna: false,
+                    bbq: false,
+                    wifi: false,
+                    ac: false,
+                    kitchen: false
+                }
             });
         }
         setIsModalOpen(true);
     };
 
-    useEffect(() => {
-        fetchListings(currentPage, searchTerm);
-    }, [currentPage, searchTerm]);
-
     const fetchListings = async (page = 1, search = '') => {
         try {
-            const response = await fetch(`http://localhost:8000/api/v1/listings/?page=${page}&size=${pageSize}&search=${encodeURIComponent(search)}`);
+            const response = await fetch(`http://localhost:8000/api/v1/listings/?page=${page}&size=${pageSize}&search=${encodeURIComponent(search)}&status=all`);
             const data = await response.json();
 
             const mappedData = data.items.map(l => ({
@@ -147,21 +317,39 @@ export const AdminListings = () => {
         }
     };
 
+    const fetchAvailableAmenities = async () => {
+        try {
+            const response = await fetch('http://localhost:8000/api/v1/amenities/');
+            if (response.ok) {
+                const data = await response.json();
+                setAvailableAmenities(data);
+            }
+        } catch (error) {
+            console.error('Error fetching amenities:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchListings(currentPage, searchTerm);
+        fetchAvailableAmenities();
+    }, [currentPage, searchTerm]);
+
     const handleSave = async () => {
         setIsSaving(true);
         const payload = {
             title: formData.name,
-            region: formData.location.split(',')[1]?.trim().toLowerCase() || 'tashkent',
+            region: formData.location.toLowerCase().includes('zomin') ? 'zomin' : 'jizzax',
             location: formData.location,
             price_per_night: Number(formData.price),
             description: formData.description,
             images: formData.images,
             video_url: formData.videoUrl,
-            guests_max: 10, // Default values for now
-            rooms: 4,
-            beds: 5,
-            baths: 2,
-            amenities: { pool: true, wifi: true }
+            guests_max: Number(formData.guests_max),
+            rooms: Number(formData.rooms),
+            beds: Number(formData.beds),
+            baths: Number(formData.baths),
+            amenities: formData.amenities,
+            status: formData.status
         };
 
         try {
@@ -206,10 +394,28 @@ export const AdminListings = () => {
         }
     };
 
-    const toggleStatus = (id) => {
-        setListings(listings.map(l =>
-            l.id === id ? { ...l, status: l.status === 'active' ? 'inactive' : 'active' } : l
-        ));
+    const toggleStatus = async (id) => {
+        const listing = listings.find(l => l.id === id);
+        if (!listing) return;
+
+        const newStatus = listing.status === 'active' ? 'inactive' : 'active';
+
+        try {
+            const response = await fetch(`http://localhost:8000/api/v1/listings/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus }),
+            });
+
+            if (response.ok) {
+                setListings(listings.map(l =>
+                    l.id === id ? { ...l, status: newStatus } : l
+                ));
+            }
+        } catch (error) {
+            console.error('Error toggling status:', error);
+            alert('Statusni o\'zgartirishda xatolik yuz berdi');
+        }
     };
 
     const handleFileUpload = async (e, field) => {
@@ -496,8 +702,8 @@ export const AdminListings = () => {
                                     key={pageNum}
                                     onClick={() => setCurrentPage(pageNum)}
                                     className={`w-10 h-10 rounded-xl text-xs font-black transition-all shadow-sm ${currentPage === pageNum
-                                            ? 'bg-primary-600 text-white'
-                                            : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-600 hover:border-primary/50'
+                                        ? 'bg-primary-600 text-white'
+                                        : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-600 hover:border-primary/50'
                                         }`}
                                 >
                                     {pageNum}
@@ -563,7 +769,7 @@ export const AdminListings = () => {
                                             type="text"
                                             value={formData.location}
                                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                            placeholder="Masalan: Bo'stonliq, Toshkent"
+                                            placeholder="Masalan: Zomin or Jizzax shahri"
                                             className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all"
                                         />
                                     </div>
@@ -601,36 +807,156 @@ export const AdminListings = () => {
                                     ></textarea>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center">
-                                        <Video size={16} className="mr-2 text-primary" />
-                                        Video URL (ixtiyoriy)
-                                    </label>
-                                    <div className="relative group">
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary-600 transition-colors pointer-events-none">
-                                            {uploadingField === 'video' ? <Loader2 size={20} className="animate-spin" /> : <Upload size={20} />}
-                                        </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center">
+                                            <Users size={14} className="mr-2" /> Mehmonlar
+                                        </label>
                                         <input
-                                            type="file"
-                                            accept="video/*"
-                                            onChange={(e) => handleFileUpload(e, 'video')}
-                                            className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all file:hidden cursor-pointer"
+                                            type="number"
+                                            value={formData.guests_max}
+                                            onChange={(e) => setFormData({ ...formData, guests_max: e.target.value })}
+                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                         />
-                                        <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                                            <span className="text-xs font-bold text-gray-400">Video faylni tanlang</span>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center">
+                                            <LayoutGrid size={14} className="mr-2" /> Xonalar
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={formData.rooms}
+                                            onChange={(e) => setFormData({ ...formData, rooms: e.target.value })}
+                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center">
+                                            <Bed size={14} className="mr-2" /> Karavotlar
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={formData.beds}
+                                            onChange={(e) => setFormData({ ...formData, beds: e.target.value })}
+                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center">
+                                            <Bath size={14} className="mr-2" /> Hammomlar
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={formData.baths}
+                                            onChange={(e) => setFormData({ ...formData, baths: e.target.value })}
+                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Qulayliklar</label>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                        {availableAmenities.map((amenity) => {
+                                            const Icon = iconMap[amenity.icon] || Smile;
+                                            const key = amenity.name_uz; // Use name_uz as key for backwards compat or mapping
+                                            return (
+                                                <button
+                                                    key={amenity.id}
+                                                    type="button"
+                                                    onClick={() => setFormData({
+                                                        ...formData,
+                                                        amenities: {
+                                                            ...formData.amenities,
+                                                            [key]: !formData.amenities[key]
+                                                        }
+                                                    })}
+                                                    className={`flex items-center space-x-3 p-4 rounded-2xl border transition-all ${formData.amenities[key]
+                                                        ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/20 dark:border-primary-800 dark:text-primary-400 font-bold'
+                                                        : 'bg-gray-50 border-gray-100 text-gray-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400'
+                                                        }`}
+                                                >
+                                                    <Icon size={20} className={formData.amenities[key] ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400'} />
+                                                    <span className="text-[10px] uppercase tracking-wider">{amenity.name_uz}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center">
+                                            <Video size={16} className="mr-2 text-primary" />
+                                            Asosiy Video
+                                        </label>
+                                        <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
+                                            <button
+                                                type="button"
+                                                onClick={() => setUploadingField(uploadingField === 'link' ? null : 'link')}
+                                                className={`px-3 py-1 text-[10px] font-bold rounded-lg transition-all ${uploadingField !== 'video' ? 'bg-white dark:bg-gray-700 shadow-sm text-primary' : 'text-gray-500'}`}
+                                            >
+                                                Link ulash
+                                            </button>
                                         </div>
                                     </div>
+
+                                    <div className="space-y-3">
+                                        <div className="relative group">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary-600 transition-colors pointer-events-none">
+                                                {uploadingField === 'video' ? <Loader2 size={20} className="animate-spin" /> : <Upload size={20} />}
+                                            </div>
+                                            <input
+                                                type="file"
+                                                accept="video/*"
+                                                onChange={(e) => handleFileUpload(e, 'video')}
+                                                className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all file:hidden cursor-pointer"
+                                            />
+                                            <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                                                <span className="text-xs font-bold text-gray-400">Video faylni yuklash</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="relative">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                                <Video size={20} />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={formData.videoUrl}
+                                                onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                                                placeholder="YouTube yoki boshqa video linkini kiriting..."
+                                                className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
                                     {formData.videoUrl && (
-                                        <div className="mt-2 relative aspect-video rounded-2xl overflow-hidden ring-1 ring-gray-100 dark:ring-gray-800 shadow-sm bg-gray-100 dark:bg-gray-800">
-                                            {isVideo(formData.videoUrl) ? (
+                                        <div className="mt-2 relative aspect-video rounded-3xl overflow-hidden ring-1 ring-gray-100 dark:ring-gray-800 shadow-xl bg-gray-100 dark:bg-gray-800 group">
+                                            {formData.videoUrl.includes('youtube.com') || formData.videoUrl.includes('youtu.be') ? (
+                                                <iframe
+                                                    src={getYoutubeEmbedUrl(formData.videoUrl)}
+                                                    className="w-full h-full"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                    allowFullScreen
+                                                ></iframe>
+                                            ) : isVideo(formData.videoUrl) ? (
                                                 <video src={formData.videoUrl} className="w-full h-full object-cover" controls muted />
                                             ) : (
-                                                <img src={formData.videoUrl} alt="Video URL Preview" className="w-full h-full object-cover" />
+                                                <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs font-bold uppercase tracking-widest">
+                                                    Video topilmadi
+                                                </div>
                                             )}
-                                            <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 text-[8px] text-white font-black uppercase rounded-lg">Preview</div>
+                                            <div className="absolute top-4 left-4 px-3 py-1.5 bg-black/60 backdrop-blur-md text-[10px] text-white font-black uppercase rounded-xl">Video Preview</div>
+                                            <button
+                                                onClick={() => setFormData({ ...formData, videoUrl: '' })}
+                                                className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-xl"
+                                            >
+                                                <X size={16} />
+                                            </button>
                                         </div>
                                     )}
-                                    <p className="text-[10px] text-gray-400 font-medium lowercase first-letter:uppercase">Asosiy video dacha sahifasida birinchi bo'lib ko'rinadi.</p>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider pl-1">Asosiy video dacha sahifasining eng yuqori qismida ko'rinadi.</p>
                                 </div>
 
                                 <div className="space-y-4">
@@ -638,42 +964,44 @@ export const AdminListings = () => {
                                         <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Galereya (Rasmlar va Videolar)</label>
                                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{formData.images.length} ta fayl</span>
                                     </div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                        {formData.images.map((img, index) => (
-                                            <div key={index} className="relative aspect-square rounded-2xl overflow-hidden group ring-1 ring-gray-100 dark:ring-gray-800 shadow-sm bg-gray-100 dark:bg-gray-800">
-                                                {isVideo(img) ? (
-                                                    <video src={img} className="w-full h-full object-cover" muted />
-                                                ) : (
-                                                    <img src={img} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                                )}
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
-                                                    <button
-                                                        onClick={() => {
-                                                            const newImages = formData.images.filter((_, i) => i !== index);
+                                    <DndContext
+                                        sensors={sensors}
+                                        collisionDetection={closestCenter}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        <SortableContext
+                                            items={formData.images}
+                                            strategy={rectSortingStrategy}
+                                        >
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                                {formData.images.map((img, index) => (
+                                                    <SortableImage
+                                                        key={img}
+                                                        img={img}
+                                                        index={index}
+                                                        onRemove={(idx) => {
+                                                            const newImages = formData.images.filter((_, i) => i !== idx);
                                                             setFormData({ ...formData, images: newImages });
                                                         }}
-                                                        className="p-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors shadow-lg"
-                                                    >
-                                                        <X size={16} />
-                                                    </button>
-                                                </div>
+                                                    />
+                                                ))}
+                                                <label className="relative aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/30 overflow-hidden cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-all">
+                                                    {uploadingField === 'gallery' ? (
+                                                        <Loader2 size={24} className="text-primary animate-spin mb-1" />
+                                                    ) : (
+                                                        <Plus size={24} className="text-gray-400 mb-1" />
+                                                    )}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*,video/*"
+                                                        onChange={(e) => handleFileUpload(e, 'gallery')}
+                                                        className="hidden"
+                                                    />
+                                                    <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter text-center px-2 pointer-events-none">Fayl yuklash</span>
+                                                </label>
                                             </div>
-                                        ))}
-                                        <label className="relative aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/30 overflow-hidden cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-all">
-                                            {uploadingField === 'gallery' ? (
-                                                <Loader2 size={24} className="text-primary animate-spin mb-1" />
-                                            ) : (
-                                                <Plus size={24} className="text-gray-400 mb-1" />
-                                            )}
-                                            <input
-                                                type="file"
-                                                accept="image/*,video/*"
-                                                onChange={(e) => handleFileUpload(e, 'gallery')}
-                                                className="hidden"
-                                            />
-                                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter text-center px-2 pointer-events-none">Fayl yuklash</span>
-                                        </label>
-                                    </div>
+                                        </SortableContext>
+                                    </DndContext>
                                 </div>
                             </div>
 

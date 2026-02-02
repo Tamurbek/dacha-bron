@@ -16,13 +16,17 @@ def read_listings(
     page: int = 1,
     size: int = 10,
     region: str = None,
-    search: str = None
+    search: str = None,
+    status: str = "active"
 ) -> Any:
     skip = (page - 1) * size
     
     query = db.query(ListingModel).order_by(ListingModel.id.desc())
     if region:
         query = query.filter(ListingModel.region == region)
+    
+    if status and status != "all":
+        query = query.filter(ListingModel.status == status)
     if search:
         search_filter = f"%{search}%"
         query = query.filter(

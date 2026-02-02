@@ -16,7 +16,7 @@ export function Home() {
     useEffect(() => {
         const fetchListings = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/v1/listings/?size=8');
+                const response = await fetch('http://localhost:8000/api/v1/listings/?size=8&status=active');
                 if (!response.ok) throw new Error('Ma\'lumotlarni yuklashda xatolik');
                 const data = await response.json();
 

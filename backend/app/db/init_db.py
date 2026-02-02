@@ -13,7 +13,7 @@ def init_db(db: Session) -> None:
         return
 
     # Seed data
-    regions = ['tashkent', 'zomin', 'chimgan', 'jizzax', 'charvak', 'amirsoy']
+    regions = ['zomin', 'jizzax']
     titles = [
         "Shinam Dacha", "Lux Villa", "Mountain Vista", "Pool Side Paradise",
         "Family Retreat", "Eco Stay", "Modern Mansion", "Grand Villa",

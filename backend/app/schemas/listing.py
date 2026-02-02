@@ -15,6 +15,7 @@ class ListingBase(BaseModel):
     images: Optional[List[str]] = None
     video_url: Optional[str] = None
     description: Optional[str] = None
+    status: Optional[str] = "active"
 
 class ListingCreate(ListingBase):
     title: str
