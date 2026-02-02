@@ -10,21 +10,29 @@ router = APIRouter()
 
 @router.post("/file")
 async def upload_file(file: UploadFile = File(...)) -> Any:
-    # Validate file type
-    allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".mp4", ".mov", ".webm"}
+    print(f"Received file: {file.filename}, content_type: {file.content_type}")
+    
+    # Validate file type (including iPhone formats)
+    allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic", ".heif", ".mp4", ".mov", ".webm"}
     file_ext = os.path.splitext(file.filename)[1].lower()
     
+    print(f"File extension: {file_ext}")
+    
     if file_ext not in allowed_extensions:
-        raise HTTPException(status_code=400, detail="File extension not allowed")
+        print(f"Extension {file_ext} not in allowed list")
+        raise HTTPException(status_code=400, detail=f"File extension '{file_ext}' not allowed. Allowed: {allowed_extensions}")
 
     # Read file content
     content = await file.read()
+    print(f"File size: {len(content)} bytes")
     
     # Upload to Telegram/Telegra.ph
     try:
         url = await upload_file_to_storage(content, file.filename)
+        print(f"Upload successful: {url}")
         return {"url": url, "filename": file.filename}
     except Exception as e:
+        print(f"Upload error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 @router.post("/files")
