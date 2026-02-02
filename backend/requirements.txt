@@ -13,3 +13,5 @@ redis
 asyncio
 databases
 httpx
+Pillow
+pillow-heif
