@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Plus,
     Search,
@@ -15,8 +15,11 @@ import {
     Upload,
     Save,
     Loader2,
+    Video,
     LayoutGrid,
-    Table as TableIcon
+    Table as TableIcon,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -33,7 +36,8 @@ const initialListings = [
             "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&q=80&w=400"
         ],
         views: 1240,
-        description: "Tabiat qo'ynidagi shinam dacha"
+        description: "Tabiat qo'ynidagi shinam dacha",
+        videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4"
     },
     {
         id: 2,
@@ -64,6 +68,11 @@ const initialListings = [
     }
 ];
 
+const isVideo = (url) => {
+    if (!url) return false;
+    return url.match(/\.(mp4|webm|ogg|mov|m4v)($|\?)/i) || url.includes('mov_bbb.mp4');
+};
+
 export const AdminListings = () => {
     const [listings, setListings] = useState(initialListings);
     const [searchTerm, setSearchTerm] = useState('');
@@ -71,6 +80,10 @@ export const AdminListings = () => {
     const [editingListing, setEditingListing] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
     const [viewType, setViewType] = useState('table'); // 'grid' or 'table'
+    const [uploadingField, setUploadingField] = useState(null); // 'video' or 'gallery' or index
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [pageSize] = useState(10);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -79,7 +92,8 @@ export const AdminListings = () => {
         price: '',
         description: '',
         status: 'active',
-        images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400']
+        images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400'],
+        videoUrl: ''
     });
 
     const handleOpenModal = (listing = null) => {
@@ -91,7 +105,8 @@ export const AdminListings = () => {
                 price: listing.price,
                 description: listing.description || '',
                 status: listing.status,
-                images: listing.images || [listing.image]
+                images: listing.images || [listing.image],
+                videoUrl: listing.videoUrl || ''
             });
         } else {
             setEditingListing(null);
@@ -101,35 +116,93 @@ export const AdminListings = () => {
                 price: '',
                 description: '',
                 status: 'active',
-                images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400']
+                images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400'],
+                videoUrl: ''
             });
         }
         setIsModalOpen(true);
     };
 
-    const handleSave = () => {
-        setIsSaving(true);
-        setTimeout(() => {
-            if (editingListing) {
-                setListings(listings.map(l => l.id === editingListing.id ? { ...l, ...formData, price: Number(formData.price) } : l));
-            } else {
-                const newId = Math.max(...listings.map(l => l.id)) + 1;
-                setListings([...listings, {
-                    id: newId,
-                    ...formData,
-                    price: Number(formData.price),
-                    rating: 0,
-                    views: 0
-                }]);
-            }
-            setIsSaving(false);
-            setIsModalOpen(false);
-        }, 1000);
+    useEffect(() => {
+        fetchListings(currentPage, searchTerm);
+    }, [currentPage, searchTerm]);
+
+    const fetchListings = async (page = 1, search = '') => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/v1/listings/?page=${page}&size=${pageSize}&search=${encodeURIComponent(search)}`);
+            const data = await response.json();
+
+            const mappedData = data.items.map(l => ({
+                ...l,
+                name: l.title,
+                price: l.price_per_night,
+                image: l.images[0],
+                videoUrl: l.video_url
+            }));
+
+            setListings(mappedData);
+            setTotalPages(data.pages);
+        } catch (error) {
+            console.error('Error fetching listings:', error);
+        }
     };
 
-    const handleDelete = (id) => {
+    const handleSave = async () => {
+        setIsSaving(true);
+        const payload = {
+            title: formData.name,
+            region: formData.location.split(',')[1]?.trim().toLowerCase() || 'tashkent',
+            location: formData.location,
+            price_per_night: Number(formData.price),
+            description: formData.description,
+            images: formData.images,
+            video_url: formData.videoUrl,
+            guests_max: 10, // Default values for now
+            rooms: 4,
+            beds: 5,
+            baths: 2,
+            amenities: { pool: true, wifi: true }
+        };
+
+        try {
+            let response;
+            if (editingListing) {
+                response = await fetch(`http://localhost:8000/api/v1/listings/${editingListing.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+            } else {
+                response = await fetch('http://localhost:8000/api/v1/listings/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+            }
+
+            if (response.ok) {
+                await fetchListings();
+                setIsModalOpen(false);
+            }
+        } catch (error) {
+            alert('Saqlashda xatolik yuz berdi');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDelete = async (id) => {
         if (window.confirm('Haqiqatdan ham ushbu dachani o\'chirib tashlamoqchimisiz?')) {
-            setListings(listings.filter(l => l.id !== id));
+            try {
+                const response = await fetch(`http://localhost:8000/api/v1/listings/${id}`, {
+                    method: 'DELETE',
+                });
+                if (response.ok) {
+                    await fetchListings();
+                }
+            } catch (error) {
+                alert('O\'chirishda xatolik yuz berdi');
+            }
         }
     };
 
@@ -139,11 +212,37 @@ export const AdminListings = () => {
         ));
     };
 
-    const filteredListings = listings.filter(l =>
-        l.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        l.location.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const handleFileUpload = async (e, field) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
+        setUploadingField(field);
+        const formDataPayload = new FormData();
+        formDataPayload.append('file', file);
+
+        try {
+            const response = await fetch('http://localhost:8000/api/v1/upload/file', {
+                method: 'POST',
+                body: formDataPayload,
+            });
+
+            if (!response.ok) throw new Error('Yuklashda xatolik yuz berdi');
+
+            const data = await response.json();
+
+            if (field === 'video') {
+                setFormData(prev => ({ ...prev, videoUrl: data.url }));
+            } else if (field === 'gallery') {
+                setFormData(prev => ({ ...prev, images: [...prev.images, data.url] }));
+            }
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            setUploadingField(null);
+        }
+    };
+
+    const filteredListings = listings; // Search is now handled by backend
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header Actions */}
@@ -362,6 +461,61 @@ export const AdminListings = () => {
                 )}
             </AnimatePresence>
 
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 pb-8">
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                        Sahifa {currentPage} / {totalPages}
+                    </p>
+                    <div className="flex items-center space-x-2">
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(prev => prev - 1)}
+                            className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500 transition-all shadow-sm"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+
+                        {[...Array(totalPages)].map((_, i) => {
+                            const pageNum = i + 1;
+                            // Show only a few page numbers around current page
+                            if (
+                                totalPages > 7 &&
+                                pageNum !== 1 &&
+                                pageNum !== totalPages &&
+                                (pageNum < currentPage - 1 || pageNum > currentPage + 1)
+                            ) {
+                                if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                                    return <span key={pageNum} className="text-gray-400">...</span>;
+                                }
+                                return null;
+                            }
+
+                            return (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => setCurrentPage(pageNum)}
+                                    className={`w-10 h-10 rounded-xl text-xs font-black transition-all shadow-sm ${currentPage === pageNum
+                                            ? 'bg-primary-600 text-white'
+                                            : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-600 hover:border-primary/50'
+                                        }`}
+                                >
+                                    {pageNum}
+                                </button>
+                            );
+                        })}
+
+                        <button
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(prev => prev + 1)}
+                            className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500 transition-all shadow-sm"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Add/Edit Modal */}
             <AnimatePresence>
                 {isModalOpen && (
@@ -447,15 +601,51 @@ export const AdminListings = () => {
                                     ></textarea>
                                 </div>
 
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center">
+                                        <Video size={16} className="mr-2 text-primary" />
+                                        Video URL (ixtiyoriy)
+                                    </label>
+                                    <div className="relative group">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary-600 transition-colors pointer-events-none">
+                                            {uploadingField === 'video' ? <Loader2 size={20} className="animate-spin" /> : <Upload size={20} />}
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="video/*"
+                                            onChange={(e) => handleFileUpload(e, 'video')}
+                                            className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all file:hidden cursor-pointer"
+                                        />
+                                        <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                                            <span className="text-xs font-bold text-gray-400">Video faylni tanlang</span>
+                                        </div>
+                                    </div>
+                                    {formData.videoUrl && (
+                                        <div className="mt-2 relative aspect-video rounded-2xl overflow-hidden ring-1 ring-gray-100 dark:ring-gray-800 shadow-sm bg-gray-100 dark:bg-gray-800">
+                                            {isVideo(formData.videoUrl) ? (
+                                                <video src={formData.videoUrl} className="w-full h-full object-cover" controls muted />
+                                            ) : (
+                                                <img src={formData.videoUrl} alt="Video URL Preview" className="w-full h-full object-cover" />
+                                            )}
+                                            <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 text-[8px] text-white font-black uppercase rounded-lg">Preview</div>
+                                        </div>
+                                    )}
+                                    <p className="text-[10px] text-gray-400 font-medium lowercase first-letter:uppercase">Asosiy video dacha sahifasida birinchi bo'lib ko'rinadi.</p>
+                                </div>
+
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center">
-                                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Rasmlar</label>
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{formData.images.length} ta rasm</span>
+                                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Galereya (Rasmlar va Videolar)</label>
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{formData.images.length} ta fayl</span>
                                     </div>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                         {formData.images.map((img, index) => (
-                                            <div key={index} className="relative aspect-square rounded-2xl overflow-hidden group ring-1 ring-gray-100 dark:ring-gray-800 shadow-sm">
-                                                <img src={img} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                            <div key={index} className="relative aspect-square rounded-2xl overflow-hidden group ring-1 ring-gray-100 dark:ring-gray-800 shadow-sm bg-gray-100 dark:bg-gray-800">
+                                                {isVideo(img) ? (
+                                                    <video src={img} className="w-full h-full object-cover" muted />
+                                                ) : (
+                                                    <img src={img} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                )}
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
                                                     <button
                                                         onClick={() => {
@@ -469,24 +659,20 @@ export const AdminListings = () => {
                                                 </div>
                                             </div>
                                         ))}
-                                        <div className="relative aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/30 overflow-hidden">
-                                            <Plus size={24} className="text-gray-400 mb-1" />
+                                        <label className="relative aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/30 overflow-hidden cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-all">
+                                            {uploadingField === 'gallery' ? (
+                                                <Loader2 size={24} className="text-primary animate-spin mb-1" />
+                                            ) : (
+                                                <Plus size={24} className="text-gray-400 mb-1" />
+                                            )}
                                             <input
-                                                type="text"
-                                                placeholder="URL..."
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') {
-                                                        const url = e.target.value.trim();
-                                                        if (url) {
-                                                            setFormData({ ...formData, images: [...formData.images, url] });
-                                                            e.target.value = '';
-                                                        }
-                                                    }
-                                                }}
-                                                className="w-full h-full absolute inset-0 opacity-0 cursor-pointer focus:opacity-100 focus:bg-white dark:focus:bg-gray-900 px-2 text-center text-[10px] font-medium outline-none transition-all"
+                                                type="file"
+                                                accept="image/*,video/*"
+                                                onChange={(e) => handleFileUpload(e, 'gallery')}
+                                                className="hidden"
                                             />
-                                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter text-center px-2 pointer-events-none">URL yozib Enter'ni bosing</span>
-                                        </div>
+                                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter text-center px-2 pointer-events-none">Fayl yuklash</span>
+                                        </label>
                                     </div>
                                 </div>
                             </div>

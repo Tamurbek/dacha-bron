@@ -12,6 +12,8 @@ import { AdminListings } from './pages/admin/AdminListings';
 import { AdminBookings } from './pages/admin/AdminBookings';
 import { AdminUsers } from './pages/admin/AdminUsers';
 import { AdminSettings } from './pages/admin/AdminSettings';
+import { Login } from './pages/Login';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -28,7 +30,12 @@ function App() {
         </Route>
 
         {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/admin/login" element={<Login />} />
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }>
           <Route index element={<AdminDashboard />} />
           <Route path="listings" element={<AdminListings />} />
           <Route path="bookings" element={<AdminBookings />} />

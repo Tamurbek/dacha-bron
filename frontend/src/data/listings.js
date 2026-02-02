@@ -28,6 +28,7 @@ export const listings = Array.from({ length: 24 }).map((_, i) => {
         rooms,
         beds: rooms + 1,
         baths: Math.max(1, rooms - 1),
+        videoUrl: i % 3 === 0 ? "https://www.w3schools.com/html/mov_bbb.mp4" : null,
         amenities: amenitiesList.reduce((acc, amenity) => ({
             ...acc,
             [amenity]: Math.random() > 0.3

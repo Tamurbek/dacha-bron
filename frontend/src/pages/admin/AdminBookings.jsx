@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Home,
     Search,
@@ -13,7 +13,9 @@ import {
     Phone,
     ChevronDown,
     LayoutGrid,
-    Table as TableIcon
+    Table as TableIcon,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -87,26 +89,69 @@ const StatusBadge = ({ status }) => {
 };
 
 export const AdminBookings = () => {
-    const [bookings, setBookings] = useState(initialBookings);
+    const [bookings, setBookings] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [activeMenu, setActiveMenu] = useState(null);
     const [viewType, setViewType] = useState('table'); // 'grid' or 'table'
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [pageSize] = useState(10);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const updateStatus = (id, newStatus) => {
-        setBookings(bookings.map(b => b.id === id ? { ...b, status: newStatus } : b));
+    useEffect(() => {
+        fetchBookings(currentPage, statusFilter);
+    }, [currentPage, statusFilter]);
+
+    const fetchBookings = async (page = 1, status = 'all') => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`http://localhost:8000/api/v1/bookings/?page=${page}&size=${pageSize}&status=${status}`);
+            const data = await response.json();
+
+            const mappedData = data.items.map(b => ({
+                id: `BK-${b.id}`,
+                realId: b.id,
+                customer: b.user_name,
+                property: b.listing_title,
+                date: `${new Date(b.check_in).toLocaleDateString()} - ${new Date(b.check_out).toLocaleDateString()}`,
+                amount: b.total_price,
+                status: b.status,
+                phone: "+998 00 000 00 00" // Backend doesn't have phone in booking, maybe in user?
+            }));
+
+            setBookings(mappedData);
+            setTotalPages(data.pages);
+        } catch (error) {
+            console.error('Error fetching bookings:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const updateStatus = async (id, newStatus) => {
+        const realId = bookings.find(b => b.id === id)?.realId;
+        if (!realId) return;
+
+        try {
+            const response = await fetch(`http://localhost:8000/api/v1/bookings/${realId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus }),
+            });
+            if (response.ok) {
+                fetchBookings(currentPage, statusFilter);
+            }
+        } catch (error) {
+            alert('Statusni o\'zgartirishda xatolik yuz berdi');
+        }
         setActiveMenu(null);
     };
 
-    const filteredBookings = bookings.filter(b => {
-        const matchesSearch = b.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            b.id.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || b.status === statusFilter;
-        return matchesSearch && matchesStatus;
-    });
+    const filteredBookings = bookings; // Filtering handled by backend
 
     const stats = {
-        total: bookings.length,
+        total: bookings.length, // This is just for current page, ideally should be from a separate stats API
         paid: bookings.filter(b => b.status === 'completed' || b.status === 'confirmed').reduce((acc, b) => acc + b.amount, 0),
         debt: bookings.filter(b => b.status === 'pending').reduce((acc, b) => acc + b.amount, 0)
     };
@@ -358,6 +403,60 @@ export const AdminBookings = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 pb-8">
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                        Sahifa {currentPage} / {totalPages}
+                    </p>
+                    <div className="flex items-center space-x-2">
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(prev => prev - 1)}
+                            className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500 transition-all shadow-sm"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+
+                        {[...Array(totalPages)].map((_, i) => {
+                            const pageNum = i + 1;
+                            if (
+                                totalPages > 7 &&
+                                pageNum !== 1 &&
+                                pageNum !== totalPages &&
+                                (pageNum < currentPage - 1 || pageNum > currentPage + 1)
+                            ) {
+                                if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                                    return <span key={pageNum} className="text-gray-400">...</span>;
+                                }
+                                return null;
+                            }
+
+                            return (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => setCurrentPage(pageNum)}
+                                    className={`w-10 h-10 rounded-xl text-xs font-black transition-all shadow-sm ${currentPage === pageNum
+                                        ? 'bg-primary-600 text-white'
+                                        : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-600 hover:border-primary/50'
+                                        }`}
+                                >
+                                    {pageNum}
+                                </button>
+                            );
+                        })}
+
+                        <button
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(prev => prev + 1)}
+                            className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500 transition-all shadow-sm"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

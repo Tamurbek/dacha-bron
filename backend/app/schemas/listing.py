@@ -13,6 +13,7 @@ class ListingBase(BaseModel):
     baths: Optional[int] = None
     amenities: Optional[Dict[str, bool]] = None
     images: Optional[List[str]] = None
+    video_url: Optional[str] = None
     description: Optional[str] = None
 
 class ListingCreate(ListingBase):
@@ -35,3 +36,10 @@ class ListingInDBBase(ListingBase):
 
 class Listing(ListingInDBBase):
     pass
+
+class ListingPagination(BaseModel):
+    items: List[Listing]
+    total: int
+    page: int
+    size: int
+    pages: int

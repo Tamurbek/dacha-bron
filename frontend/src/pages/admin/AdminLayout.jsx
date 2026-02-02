@@ -70,6 +70,7 @@ export const AdminLayout = () => {
 
     const handleLogout = () => {
         if (window.confirm('Tizimdan chiqmoqchimisiz?')) {
+            localStorage.removeItem('admin_token');
             navigate('/');
         }
     };

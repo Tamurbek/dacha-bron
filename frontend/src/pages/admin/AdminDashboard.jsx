@@ -127,7 +127,7 @@ export const AdminDashboard = () => {
                             <option>Shu yil</option>
                         </select>
                     </div>
-                    <div className="h-[350px] w-full min-h-0 min-w-0">
+                    <div className="h-[350px] w-full min-h-0 min-w-0 flex items-center justify-center">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                                 <defs>

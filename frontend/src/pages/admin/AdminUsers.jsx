@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Users,
     UserPlus,
@@ -14,7 +14,10 @@ import {
     CheckCircle,
     Loader2,
     LayoutGrid,
-    Table as TableIcon
+    Table as TableIcon,
+    ChevronLeft,
+    ChevronRight,
+    Save
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -26,28 +29,74 @@ const initialUsers = [
 ];
 
 export const AdminUsers = () => {
-    const [users, setUsers] = useState(initialUsers);
+    const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [viewType, setViewType] = useState('table'); // 'grid' or 'table'
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [pageSize] = useState(10);
+    const [isSaving, setIsSaving] = useState(false);
 
-    const handleDeleteUser = (id) => {
-        if (window.confirm('Foydalanuvchini o\'chirib tashlamoqchimisiz?')) {
-            setUsers(users.filter(u => u.id !== id));
+    useEffect(() => {
+        fetchUsers(currentPage, searchTerm);
+    }, [currentPage, searchTerm]);
+
+    const fetchUsers = async (page = 1, search = '') => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`http://localhost:8000/api/v1/users/?page=${page}&size=${pageSize}&search=${encodeURIComponent(search)}`);
+            const data = await response.json();
+
+            // Map created_at to joined if needed
+            const mappedData = data.items.map(u => ({
+                ...u,
+                name: u.full_name,
+                joined: u.created_at ? new Date(u.created_at).toLocaleDateString() : 'Noma\'lum'
+            }));
+
+            setUsers(mappedData);
+            setTotalPages(data.pages);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const toggleRole = (id) => {
-        setUsers(users.map(u =>
-            u.id === id ? { ...u, role: u.role === 'admin' ? 'user' : 'admin' } : u
-        ));
+    const handleDeleteUser = async (id) => {
+        if (window.confirm('Foydalanuvchini o\'chirib tashlamoqchimisiz?')) {
+            try {
+                const response = await fetch(`http://localhost:8000/api/v1/users/${id}`, {
+                    method: 'DELETE',
+                });
+                if (response.ok) {
+                    fetchUsers(currentPage, searchTerm);
+                }
+            } catch (error) {
+                alert('O\'chirishda xatolik yuz berdi');
+            }
+        }
     };
 
-    const filteredUsers = users.filter(u =>
-        u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const toggleRole = async (id, currentRole) => {
+        const newRole = currentRole === 'admin' ? 'user' : 'admin';
+        try {
+            const response = await fetch(`http://localhost:8000/api/v1/users/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role: newRole }),
+            });
+            if (response.ok) {
+                fetchUsers(currentPage, searchTerm);
+            }
+        } catch (error) {
+            alert('Rolni o\'zgartirishda xatolik yuz berdi');
+        }
+    };
+
+    const filteredUsers = users; // Search handled by backend
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -108,7 +157,7 @@ export const AdminUsers = () => {
                                         <span className="text-2xl font-black">{user.name.charAt(0)}</span>
                                     </div>
                                     <button
-                                        onClick={() => toggleRole(user.id)}
+                                        onClick={() => toggleRole(user.id, user.role)}
                                         className={`flex items-center space-x-1 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${user.role === 'admin'
                                             ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/20'
                                             : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
@@ -168,7 +217,7 @@ export const AdminUsers = () => {
                                             </td>
                                             <td className="px-8 py-5 text-sm font-bold text-gray-500 dark:text-gray-400">{user.email}</td>
                                             <td className="px-8 py-5">
-                                                <button onClick={() => toggleRole(user.id)} className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${user.role === 'admin' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20' : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'}`}>{user.role}</button>
+                                                <button onClick={() => toggleRole(user.id, user.role)} className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${user.role === 'admin' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20' : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'}`}>{user.role}</button>
                                             </td>
                                             <td className="px-8 py-5 text-sm font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap">{user.joined}</td>
                                             <td className="px-8 py-5">
@@ -185,6 +234,60 @@ export const AdminUsers = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 pb-8">
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                        Sahifa {currentPage} / {totalPages}
+                    </p>
+                    <div className="flex items-center space-x-2">
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(prev => prev - 1)}
+                            className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500 transition-all shadow-sm"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+
+                        {[...Array(totalPages)].map((_, i) => {
+                            const pageNum = i + 1;
+                            if (
+                                totalPages > 7 &&
+                                pageNum !== 1 &&
+                                pageNum !== totalPages &&
+                                (pageNum < currentPage - 1 || pageNum > currentPage + 1)
+                            ) {
+                                if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                                    return <span key={pageNum} className="text-gray-400">...</span>;
+                                }
+                                return null;
+                            }
+
+                            return (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => setCurrentPage(pageNum)}
+                                    className={`w-10 h-10 rounded-xl text-xs font-black transition-all shadow-sm ${currentPage === pageNum
+                                        ? 'bg-primary-600 text-white'
+                                        : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-600 hover:border-primary/50'
+                                        }`}
+                                >
+                                    {pageNum}
+                                </button>
+                            );
+                        })}
+
+                        <button
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(prev => prev + 1)}
+                            className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500 transition-all shadow-sm"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <AnimatePresence>
                 {isModalOpen && (

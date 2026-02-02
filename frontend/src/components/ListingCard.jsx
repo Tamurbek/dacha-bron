@@ -5,6 +5,11 @@ import { useI18n } from '../i18n/useI18n';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { regions } from '../data/regions';
 
+const isVideo = (url) => {
+    if (!url) return false;
+    return url.match(/\.(mp4|webm|ogg|mov|m4v)($|\?)/i) || url.includes('mov_bbb.mp4');
+};
+
 export function ListingCard({ listing }) {
     const { t, lang } = useI18n();
     const [favorites, setFavorites] = useLocalStorage('favorites', []);
@@ -26,14 +31,32 @@ export function ListingCard({ listing }) {
         }
     };
 
+    const [isHovered, setIsHovered] = useState(false);
+
     return (
-        <Link to={`/listing/${listing.id}`} className="group block h-full bg-white dark:bg-gray-800/50 rounded-2xl p-2 md:p-0 md:bg-transparent md:dark:bg-transparent shadow-sm md:shadow-none hover:shadow-md md:hover:shadow-none transition-all">
-            <div className="relative aspect-[4/3] rounded-xl md:rounded-2xl overflow-hidden mb-3">
-                <img
-                    src={listing.images[0]}
-                    alt={listing.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
+        <Link
+            to={`/listing/${listing.id}`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="group block h-full bg-white dark:bg-gray-800/50 rounded-2xl p-2 md:p-0 md:bg-transparent md:dark:bg-transparent shadow-sm md:shadow-none hover:shadow-md md:hover:shadow-none transition-all"
+        >
+            <div className="relative aspect-[4/3] rounded-xl md:rounded-2xl overflow-hidden mb-3 bg-gray-100 dark:bg-gray-800">
+                {listing.videoUrl && isHovered ? (
+                    <video
+                        src={listing.videoUrl}
+                        className="w-full h-full object-cover"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                    />
+                ) : (
+                    <img
+                        src={listing.images[0]}
+                        alt={listing.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                )}
                 <button
                     onClick={toggleFavorite}
                     className="absolute top-2 right-2 md:top-3 md:right-3 p-2 bg-white/90 dark:bg-black/40 backdrop-blur-md rounded-full shadow-sm hover:scale-110 active:scale-95 transition-all z-10"
@@ -69,7 +92,7 @@ export function ListingCard({ listing }) {
 
                 <div className="pt-1.5 flex items-baseline space-x-1">
                     <span className="text-base md:text-lg font-extrabold text-primary-600">
-                        {listing.pricePerNight.toLocaleString()}
+                        {listing.pricePerNight?.toLocaleString() || '0'}
                     </span>
                     <span className="text-[10px] md:text-xs font-semibold text-gray-500 dark:text-gray-400">
                         UZS / {t('per_night')}

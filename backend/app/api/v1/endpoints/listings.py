@@ -3,36 +3,43 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.listing import Listing as ListingModel
-from app.schemas.listing import Listing, ListingCreate, ListingUpdate
+from app.schemas.listing import Listing, ListingCreate, ListingUpdate, ListingPagination
 import json
+import math
 from app.core.redis_client import redis_client
 
 router = APIRouter()
 
-@router.get("/", response_model=List[Listing])
+@router.get("/", response_model=ListingPagination)
 def read_listings(
     db: Session = Depends(get_db),
-    skip: int = 0,
-    limit: int = 100,
-    region: str = None
+    page: int = 1,
+    size: int = 10,
+    region: str = None,
+    search: str = None
 ) -> Any:
-    cache_key = f"listings:{region}:{skip}:{limit}"
-    cached = redis_client.get(cache_key)
-    if cached:
-        return json.loads(cached)
-
-    query = db.query(ListingModel)
+    skip = (page - 1) * size
+    
+    query = db.query(ListingModel).order_by(ListingModel.id.desc())
     if region:
         query = query.filter(ListingModel.region == region)
-    listings = query.offset(skip).limit(limit).all()
+    if search:
+        search_filter = f"%{search}%"
+        query = query.filter(
+            (ListingModel.title.ilike(search_filter)) | 
+            (ListingModel.location.ilike(search_filter))
+        )
     
-    # Pre-serialize for JSON storage because SQLAlchemy objects aren't directly serializable
-    # For a production app, use a proper serializer or stick to Pydantic models
-    # Here we convert to dict list as a placeholder
-    listings_data = [Listing.model_validate(l).model_dump(mode='json') for l in listings]
-    redis_client.setex(cache_key, 60, json.dumps(listings_data))
+    total = query.count()
+    listings = query.offset(skip).limit(size).all()
     
-    return listings
+    return {
+        "items": listings,
+        "total": total,
+        "page": page,
+        "size": size,
+        "pages": math.ceil(total / size) if total > 0 else 0
+    }
 
 @router.post("/", response_model=Listing)
 def create_listing(
@@ -55,4 +62,37 @@ def read_listing(
     listing = db.query(ListingModel).filter(ListingModel.id == id).first()
     if not listing:
         raise HTTPException(status_code=404, detail="Listing not found")
+    return listing
+
+@router.put("/{id}", response_model=Listing)
+def update_listing(
+    *,
+    db: Session = Depends(get_db),
+    id: int,
+    listing_in: ListingUpdate
+) -> Any:
+    listing = db.query(ListingModel).filter(ListingModel.id == id).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    
+    update_data = listing_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(listing, field, value)
+    
+    db.add(listing)
+    db.commit()
+    db.refresh(listing)
+    return listing
+
+@router.delete("/{id}", response_model=Listing)
+def delete_listing(
+    *,
+    db: Session = Depends(get_db),
+    id: int
+) -> Any:
+    listing = db.query(ListingModel).filter(ListingModel.id == id).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    db.delete(listing)
+    db.commit()
     return listing

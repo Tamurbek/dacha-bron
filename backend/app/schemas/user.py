@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
@@ -24,3 +24,10 @@ class UserInDBBase(UserBase):
 
 class User(UserInDBBase):
     pass
+
+class UserPagination(BaseModel):
+    items: List[User]
+    total: int
+    page: int
+    size: int
+    pages: int

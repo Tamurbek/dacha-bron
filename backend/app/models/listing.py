@@ -16,6 +16,7 @@ class Listing(Base):
     baths = Column(Integer)
     amenities = Column(JSON) # e.g. {"pool": true, "wifi": true}
     images = Column(JSON) # List of image URLs
+    video_url = Column(String, nullable=True) # URL of a video file
     description = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

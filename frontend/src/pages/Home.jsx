@@ -9,11 +9,34 @@ import { Link } from 'react-router-dom';
 
 export function Home() {
     const { t, lang } = useI18n();
+    const [listings, setListings] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 700);
-        return () => clearTimeout(timer);
+        const fetchListings = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/listings/?size=8');
+                if (!response.ok) throw new Error('Ma\'lumotlarni yuklashda xatolik');
+                const data = await response.json();
+
+                // Map snake_case to camelCase from the 'items' array
+                const mappedData = data.items.map(l => ({
+                    ...l,
+                    pricePerNight: l.price_per_night,
+                    guestsMax: l.guests_max,
+                    videoUrl: l.video_url
+                }));
+
+                setListings(mappedData);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchListings();
     }, []);
 
     const featuredListings = listings.slice(0, 8);
