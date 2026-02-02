@@ -48,19 +48,22 @@ export const AdminUsers = () => {
         setIsLoading(true);
         try {
             const response = await fetch(`${API_V1_URL}/users/?page=${page}&size=${pageSize}&search=${encodeURIComponent(search)}`);
+            if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
 
-            // Map created_at to joined if needed
-            const mappedData = data.items.map(u => ({
+            const items = data.items || [];
+            const mappedData = items.map(u => ({
                 ...u,
                 name: u.full_name,
                 joined: u.created_at ? new Date(u.created_at).toLocaleDateString() : 'Noma\'lum'
             }));
 
             setUsers(mappedData);
-            setTotalPages(data.pages);
+            setTotalPages(data.pages || 1);
         } catch (error) {
             console.error('Error fetching users:', error);
+            setUsers([]);
+            setTotalPages(1);
         } finally {
             setIsLoading(false);
         }

@@ -306,20 +306,24 @@ export const AdminListings = () => {
     const fetchListings = async (page = 1, search = '') => {
         try {
             const response = await fetch(`${API_V1_URL}/listings/?page=${page}&size=${pageSize}&search=${encodeURIComponent(search)}&status=all`);
+            if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
 
-            const mappedData = data.items.map(l => ({
+            const items = data.items || [];
+            const mappedData = items.map(l => ({
                 ...l,
                 name: l.title,
                 price: l.price_per_night,
-                image: l.images[0],
+                image: (l.images && l.images.length > 0) ? l.images[0] : '',
                 videoUrl: l.video_url
             }));
 
             setListings(mappedData);
-            setTotalPages(data.pages);
+            setTotalPages(data.pages || 1);
         } catch (error) {
             console.error('Error fetching listings:', error);
+            setListings([]);
+            setTotalPages(1);
         }
     };
 
@@ -367,7 +371,7 @@ export const AdminListings = () => {
                     body: JSON.stringify(payload),
                 });
             } else {
-                response = await fetch('${API_V1_URL}/listings/', {
+                response = await fetch(`${API_V1_URL}/listings/`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
@@ -437,7 +441,7 @@ export const AdminListings = () => {
         formDataPayload.append('file', file);
 
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', '${API_V1_URL}/upload/file', true);
+        xhr.open('POST', `${API_V1_URL}/upload/file`, true);
 
         xhr.upload.onprogress = (event) => {
             if (event.lengthComputable) {

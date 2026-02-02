@@ -43,7 +43,7 @@ export const AdminSettings = () => {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const response = await fetch('${API_V1_URL}/settings/telegram', {
+            const response = await fetch(`${API_V1_URL}/settings/telegram`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

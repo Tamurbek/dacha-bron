@@ -108,9 +108,11 @@ export const AdminBookings = () => {
         setIsLoading(true);
         try {
             const response = await fetch(`${API_V1_URL}/bookings/?page=${page}&size=${pageSize}&status=${status}`);
+            if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
 
-            const mappedData = data.items.map(b => ({
+            const items = data.items || [];
+            const mappedData = items.map(b => ({
                 id: `BK-${b.id}`,
                 realId: b.id,
                 customer: b.user_name,
@@ -122,9 +124,11 @@ export const AdminBookings = () => {
             }));
 
             setBookings(mappedData);
-            setTotalPages(data.pages);
+            setTotalPages(data.pages || 1);
         } catch (error) {
             console.error('Error fetching bookings:', error);
+            setBookings([]);
+            setTotalPages(1);
         } finally {
             setIsLoading(false);
         }

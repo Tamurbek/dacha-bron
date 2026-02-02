@@ -90,7 +90,7 @@ export const AdminAmenities = () => {
         try {
             const url = editingAmenity
                 ? `${API_V1_URL}/amenities/${editingAmenity.id}`
-                : '${API_V1_URL}/amenities/';
+                : `${API_V1_URL}/amenities/`;
 
             const response = await fetch(url, {
                 method: editingAmenity ? 'PUT' : 'POST',
