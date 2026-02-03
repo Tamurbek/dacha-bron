@@ -1,4 +1,8 @@
-jizzaxrest.uz, www.jizzaxrest.uz {
+www.jizzaxrest.uz {
+    redir https://jizzaxrest.uz{uri}
+}
+
+jizzaxrest.uz {
     # Frontendni xizmat ko'rsatish
     handle /* {
         reverse_proxy frontend:80
@@ -9,7 +13,7 @@ jizzaxrest.uz, www.jizzaxrest.uz {
         reverse_proxy backend:8000
     }
 
-    # Loglar (muammolarni aniqlash uchun)
+    # Loglar
     log {
         output file /var/log/caddy/access.log
     }

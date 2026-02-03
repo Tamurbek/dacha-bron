@@ -1,4 +1,9 @@
+*.sh
 node_modules/
+.env
+dist/
+build/
+.DS_Store
 dist/
 .DS_Store
 .env
