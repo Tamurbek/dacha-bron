@@ -32,7 +32,7 @@ def read_bookings(
     
     # Populate extra fields for UI
     for b in bookings:
-        b.user_name = b.user.full_name if b.user else f"User #{b.user_id}"
+        b.user_name = b.customer_name or (b.user.full_name if b.user else f"User #{b.user_id}")
         b.listing_title = b.listing.title if b.listing else f"Listing #{b.listing_id}"
     
     return {
@@ -42,6 +42,20 @@ def read_bookings(
         "size": size,
         "pages": math.ceil(total / size) if total > 0 else 0
     }
+    
+@router.post("/", response_model=Booking)
+def create_booking(
+    *,
+    db: Session = Depends(get_db),
+    booking_in: BookingCreate
+) -> Any:
+    booking = BookingModel(
+        **booking_in.model_dump()
+    )
+    db.add(booking)
+    db.commit()
+    db.refresh(booking)
+    return booking
 
 @router.get("/{id}", response_model=Booking)
 def read_booking(

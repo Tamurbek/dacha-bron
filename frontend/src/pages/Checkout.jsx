@@ -83,24 +83,34 @@ export function Checkout() {
     const prevStep = () => setStep(step - 1);
 
     const handleCompleteBooking = async () => {
-        // Here you would normally send the booking request to the backend
         try {
             const bookingData = {
-                listing_id: id,
-                check_in: checkInDate,
-                check_out: checkOutDate,
+                listing_id: parseInt(id),
+                check_in: checkInDate.toISOString(),
+                check_out: checkOutDate.toISOString(),
                 guests: parseInt(guestsParam),
-                name: formData.name,
-                phone: formData.phone,
-                payment_method: formData.payment,
+                customer_name: formData.name,
+                customer_phone: formData.phone,
                 total_price: total
             };
 
-            // For now, we simulate success
-            console.log('Booking submitted:', bookingData);
+            const response = await fetch(`${API_V1_URL}/bookings/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bookingData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Failed to create booking');
+            }
+
             setStep(4);
         } catch (error) {
-            alert('Xatolik yuz berdi. Iltimos qaytadan urinib ko\'ring.');
+            console.error('Booking error:', error);
+            alert(`Xatolik yuz berdi: ${error.message}`);
         }
     };
 

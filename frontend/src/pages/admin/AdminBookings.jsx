@@ -120,7 +120,7 @@ export const AdminBookings = () => {
                 date: `${new Date(b.check_in).toLocaleDateString()} - ${new Date(b.check_out).toLocaleDateString()}`,
                 amount: b.total_price,
                 status: b.status,
-                phone: "+998 00 000 00 00" // Backend doesn't have phone in booking, maybe in user?
+                phone: b.customer_phone || "+998 00 000 00 00"
             }));
 
             setBookings(mappedData);

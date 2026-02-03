@@ -14,5 +14,8 @@ class Booking(Base):
     status = Column(String, default="pending") # pending, confirmed, cancelled
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
+    customer_name = Column(String)
+    customer_phone = Column(String)
+    
     user = relationship("User", backref="bookings")
     listing = relationship("Listing", backref="bookings")

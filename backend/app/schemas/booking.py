@@ -12,14 +12,18 @@ class BookingBase(BaseModel):
     status: Optional[str] = "pending"
     user_name: Optional[str] = None
     listing_title: Optional[str] = None
+    customer_name: Optional[str] = None
+    customer_phone: Optional[str] = None
 
 class BookingCreate(BookingBase):
-    user_id: int
+    user_id: Optional[int] = None
     listing_id: int
     check_in: datetime
     check_out: datetime
     guests: int
     total_price: float
+    customer_name: str
+    customer_phone: str
 
 class BookingUpdate(BookingBase):
     pass
