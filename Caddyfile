@@ -3,14 +3,14 @@ www.jizzaxrest.uz {
 }
 
 jizzaxrest.uz {
-    # Frontendni xizmat ko'rsatish
-    handle /* {
-        reverse_proxy frontend:80
-    }
-
-    # API so'rovlarini Backendga yo'naltirish
+    # API so'rovlarini Backendga yo'naltirish (Specific path first)
     handle /api/v1/* {
         reverse_proxy backend:8000
+    }
+
+    # Frontendni xizmat ko'rsatish (Catch-all last)
+    handle /* {
+        reverse_proxy frontend:80
     }
 
     # Loglar
