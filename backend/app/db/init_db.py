@@ -155,7 +155,7 @@ def init_db(db: Session) -> None:
         print("Listings seeded.")
     
     # Seed an admin user (if not exists)
-    admin_user = db.query(User).filter(User.email == "admin").first()
+    admin_user = db.query(User).filter(User.email == "admin@dacha.uz").first()
     if not admin_user:
         print("Creating admin user...")
         admin = User(
