@@ -1,29 +1,108 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useI18n } from '../i18n/useI18n';
-import { listings } from '../data/listings';
-import { ChevronLeft, CheckCircle, CreditCard, Wallet, Landmark, Phone, User, Calendar, Users } from 'lucide-react';
+import { API_V1_URL } from '../api/config';
+import { ChevronLeft, CheckCircle, CreditCard, Wallet, Landmark, Phone, User, Calendar, Users, Star } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 
 export function Checkout() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { t } = useI18n();
     const [step, setStep] = useState(1);
-    const listing = listings.find(l => l.id === parseInt(id));
+    const [listing, setListing] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Form states
+    // Get search params for dates and guests
+    const searchParams = new URLSearchParams(location.search);
+    const checkInParam = searchParams.get('checkIn');
+    const checkOutParam = searchParams.get('checkOut');
+    const guestsParam = searchParams.get('guests') || '1';
+
+    const checkInDate = checkInParam ? new Date(checkInParam) : null;
+    const checkOutDate = checkOutParam ? new Date(checkOutParam) : null;
+
+    useEffect(() => {
+        const fetchListing = async () => {
+            setIsLoading(true);
+            try {
+                const response = await fetch(`${API_V1_URL}/listings/${id}`);
+                if (!response.ok) throw new Error('Listing not found');
+                const data = await response.json();
+                setListing({
+                    ...data,
+                    pricePerNight: data.price_per_night,
+                    guestsMax: data.guests_max
+                });
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchListing();
+    }, [id]);
+
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
         payment: 'payme'
     });
 
-    if (!listing) return null;
+    if (isLoading) return <div className="text-center py-24">{t('loading')}</div>;
+    if (!listing) return <div className="text-center py-24">Dacha topilmadi</div>;
 
-    const nextStep = () => setStep(step + 1);
+    const calculateNights = () => {
+        if (!checkInDate || !checkOutDate) return 1;
+        const diffTime = Math.abs(checkOutDate - checkInDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays > 0 ? diffDays : 1;
+    };
+
+    const nights = calculateNights();
+    const basePrice = listing.pricePerNight * nights;
+    const serviceFee = Math.round(basePrice * 0.05);
+    const total = basePrice + serviceFee;
+
+    const formatDate = (date) => {
+        if (!date) return 'Tanlanmagan';
+        return date.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long' });
+    };
+
+    const nextStep = () => {
+        if (step === 3) {
+            handleCompleteBooking();
+        } else {
+            setStep(step + 1);
+        }
+    };
+
     const prevStep = () => setStep(step - 1);
+
+    const handleCompleteBooking = async () => {
+        // Here you would normally send the booking request to the backend
+        try {
+            const bookingData = {
+                listing_id: id,
+                check_in: checkInDate,
+                check_out: checkOutDate,
+                guests: parseInt(guestsParam),
+                name: formData.name,
+                phone: formData.phone,
+                payment_method: formData.payment,
+                total_price: total
+            };
+
+            // For now, we simulate success
+            console.log('Booking submitted:', bookingData);
+            setStep(4);
+        } catch (error) {
+            alert('Xatolik yuz berdi. Iltimos qaytadan urinib ko\'ring.');
+        }
+    };
 
     if (step === 4) {
         return (
@@ -44,7 +123,6 @@ export function Checkout() {
 
     return (
         <div className="max-w-5xl mx-auto px-4 py-12">
-            {/* Stepper Header */}
             <div className="flex items-center justify-between mb-12">
                 <button onClick={prevStep} disabled={step === 1} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full disabled:opacity-30">
                     <ChevronLeft />
@@ -63,7 +141,6 @@ export function Checkout() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                {/* Left: Form */}
                 <div className="lg:col-span-2 space-y-8">
                     {step === 1 && (
                         <div className="space-y-6">
@@ -73,14 +150,14 @@ export function Checkout() {
                                     <Calendar className="text-primary-600" />
                                     <div>
                                         <p className="text-xs font-bold text-gray-400 uppercase">Sanalar</p>
-                                        <p className="font-semibold">12-may — 15-may</p>
+                                        <p className="font-semibold">{formatDate(checkInDate)} — {formatDate(checkOutDate)}</p>
                                     </div>
                                 </div>
                                 <div className="p-4 border border-gray-200 dark:border-gray-800 rounded-2xl flex items-center space-x-4">
                                     <Users className="text-primary-600" />
                                     <div>
                                         <p className="text-xs font-bold text-gray-400 uppercase">Mehmonlar</p>
-                                        <p className="font-semibold">4 kishi</p>
+                                        <p className="font-semibold">{guestsParam} kishi</p>
                                     </div>
                                 </div>
                             </div>
@@ -119,7 +196,7 @@ export function Checkout() {
                                     </div>
                                 </div>
                             </div>
-                            <Button onClick={nextStep} className="w-full md:w-auto px-12 py-3 rounded-full mt-8">
+                            <Button onClick={nextStep} className="w-full md:w-auto px-12 py-3 rounded-full mt-8" disabled={!formData.name || !formData.phone}>
                                 To'lovga o'tish
                             </Button>
                         </div>
@@ -158,7 +235,6 @@ export function Checkout() {
                     )}
                 </div>
 
-                {/* Right: Summary */}
                 <div className="col-span-1">
                     <div className="bg-gray-50 dark:bg-gray-900 rounded-3xl p-6 sticky top-24 border border-gray-100 dark:border-gray-800">
                         <h3 className="font-bold text-xl mb-6">Xulosa</h3>
@@ -176,16 +252,16 @@ export function Checkout() {
 
                         <div className="space-y-4 pt-6 border-t border-gray-100 dark:border-gray-800">
                             <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">3 kecha</span>
-                                <span className="font-bold">{(listing.pricePerNight * 3).toLocaleString()} UZS</span>
+                                <span className="text-gray-500">{nights} kecha</span>
+                                <span className="font-bold">{basePrice.toLocaleString()} UZS</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500">To'lov xizmati</span>
-                                <span className="font-bold">{(listing.pricePerNight * 3 * 0.05).toLocaleString()} UZS</span>
+                                <span className="font-bold">{serviceFee.toLocaleString()} UZS</span>
                             </div>
                             <div className="flex justify-between text-lg font-extrabold pt-4 text-primary-600">
                                 <span>Jami:</span>
-                                <span>{(listing.pricePerNight * 3 * 1.05).toLocaleString()} UZS</span>
+                                <span>{total.toLocaleString()} UZS</span>
                             </div>
                         </div>
                     </div>
@@ -194,3 +270,4 @@ export function Checkout() {
         </div>
     );
 }
+
