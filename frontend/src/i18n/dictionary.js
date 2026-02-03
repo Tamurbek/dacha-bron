@@ -40,6 +40,7 @@ export const dictionary = {
         kitchen: "Oshxona",
         rooms: "Xonalar",
         price_range: "Narx oralig'i",
+        select_dates_alert: "Iltimos, avval sanalarni tanlang",
     },
     ru: {
         home: "Главная",
@@ -82,6 +83,7 @@ export const dictionary = {
         kitchen: "Кухня",
         rooms: "Комнаты",
         price_range: "Диапазон цен",
+        select_dates_alert: "Пожалуйста, сначала выберите даты",
     },
     en: {
         home: "Home",
@@ -124,5 +126,6 @@ export const dictionary = {
         kitchen: "Kitchen",
         rooms: "Rooms",
         price_range: "Price range",
+        select_dates_alert: "Please select dates first",
     }
 };

@@ -280,37 +280,16 @@ export const AdminBookings = () => {
                                             </td>
                                             <td className="px-8 py-6 relative">
                                                 <button
-                                                    onClick={() => setActiveMenu(activeMenu === booking.id ? null : booking.id)}
+                                                    onClick={(e) => {
+                                                        const rect = e.currentTarget.getBoundingClientRect();
+                                                        setActiveMenu(activeMenu?.id === booking.id ? null : { id: booking.id, top: rect.bottom, left: rect.left });
+                                                    }}
                                                     className="group flex items-center space-x-2 hover:opacity-80 transition-all bg-gray-50 dark:bg-gray-800/50 p-1 pr-3 rounded-2xl border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
                                                 >
                                                     <StatusBadge status={booking.status} />
-                                                    <ChevronDown size={14} className="text-gray-400 group-hover:text-gray-600 transition-transform duration-300" style={{ transform: activeMenu === booking.id ? 'rotate(180deg)' : 'none' }} />
+                                                    <ChevronDown size={14} className="text-gray-400 group-hover:text-gray-600 transition-transform duration-300" style={{ transform: activeMenu?.id === booking.id ? 'rotate(180deg)' : 'none' }} />
                                                 </button>
-                                                <AnimatePresence>
-                                                    {activeMenu === booking.id && (
-                                                        <>
-                                                            <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
-                                                            <motion.div
-                                                                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                                                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                                                className="absolute z-20 top-full left-6 mt-2 w-52 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 py-3 overflow-hidden"
-                                                            >
-                                                                {['pending', 'confirmed', 'completed', 'cancelled'].map((status) => (
-                                                                    <button
-                                                                        key={status}
-                                                                        onClick={() => updateStatus(booking.id, status)}
-                                                                        className={`w-full text-left px-5 py-2.5 text-xs font-black transition-all capitalize ${booking.status === status ? 'text-primary bg-primary/10' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}
-                                                                    >
-                                                                        {status === 'pending' ? 'Kutilmoqda' :
-                                                                            status === 'confirmed' ? 'Tasdiqlangan' :
-                                                                                status === 'completed' ? 'Yakunlangan' : 'Bekor qilingan'}
-                                                                    </button>
-                                                                ))}
-                                                            </motion.div>
-                                                        </>
-                                                    )}
-                                                </AnimatePresence>
+
                                             </td>
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center space-x-3">
@@ -391,8 +370,12 @@ export const AdminBookings = () => {
                                             <Phone size={18} />
                                         </a>
                                         <button
-                                            onClick={() => setActiveMenu(activeMenu === booking.id ? null : booking.id)}
-                                            className="p-3 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-2xl hover:bg-primary hover:text-white transition-all shadow-sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                setActiveMenu(activeMenu?.id === booking.id ? null : { id: booking.id, top: rect.bottom, left: rect.left - 180 });
+                                            }}
+                                            className={`p-3 bg-gray-50 dark:bg-gray-800 rounded-2xl transition-all shadow-sm ${activeMenu?.id === booking.id ? 'bg-primary text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-primary hover:text-white'}`}
                                         >
                                             <MoreVertical size={18} />
                                         </button>
@@ -462,6 +445,40 @@ export const AdminBookings = () => {
                     </div>
                 </div>
             )}
+            {/* Global Dropdown */}
+            <AnimatePresence>
+                {activeMenu && (() => {
+                    const currentBooking = filteredBookings.find(b => b.id === activeMenu.id);
+                    if (!currentBooking) return null;
+                    return (
+                        <>
+                            <div className="fixed inset-0 z-[60]" onClick={() => setActiveMenu(null)} />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                style={{
+                                    top: activeMenu.top + 8,
+                                    left: activeMenu.left
+                                }}
+                                className="fixed z-[70] w-52 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 py-3 overflow-hidden"
+                            >
+                                {['pending', 'confirmed', 'completed', 'cancelled'].map((status) => (
+                                    <button
+                                        key={status}
+                                        onClick={() => updateStatus(activeMenu.id, status)}
+                                        className={`w-full text-left px-5 py-2.5 text-xs font-black transition-all capitalize ${currentBooking.status === status ? 'text-primary bg-primary/10' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}
+                                    >
+                                        {status === 'pending' ? 'Kutilmoqda' :
+                                            status === 'confirmed' ? 'Tasdiqlangan' :
+                                                status === 'completed' ? 'Yakunlangan' : 'Bekor qilingan'}
+                                    </button>
+                                ))}
+                            </motion.div>
+                        </>
+                    );
+                })()}
+            </AnimatePresence>
         </div>
     );
 };

@@ -25,6 +25,11 @@ export function BookingCard({ listing }) {
     const total = basePrice + serviceFee;
 
     const handleBooking = () => {
+        if (!checkIn || !checkOut) {
+            alert(t('select_dates_alert'));
+            return;
+        }
+
         const params = new URLSearchParams({
             checkIn: checkIn ? checkIn.toISOString() : '',
             checkOut: checkOut ? checkOut.toISOString() : '',
