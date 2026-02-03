@@ -50,7 +50,7 @@ def create_booking(
     booking_in: BookingCreate
 ) -> Any:
     booking = BookingModel(
-        **booking_in.model_dump()
+        **booking_in.model_dump(exclude={"user_name", "listing_title"})
     )
     db.add(booking)
     db.commit()
