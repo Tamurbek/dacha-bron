@@ -3,7 +3,7 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
 class UserBase(BaseModel):
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None
     full_name: Optional[str] = None
     role: Optional[str] = "user"
     status: Optional[str] = "active"

@@ -159,7 +159,7 @@ def init_db(db: Session) -> None:
     if not admin_user:
         print("Creating admin user...")
         admin = User(
-            email="admin",
+            email="admin@dacha.uz",
             full_name="Super Admin",
             hashed_password="admin", # placeholder
             role="admin",

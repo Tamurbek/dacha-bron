@@ -3,7 +3,7 @@ set timeout 30
 set host "root@94.183.184.106"
 set password "Code2025#"
 
-spawn ssh $host "cd /var/www/dacha && docker compose logs --tail=100 backend"
+spawn ssh $host "docker logs --tail 50 dacha-backend-1"
 expect {
     "password:" {
         send "$password\r"
