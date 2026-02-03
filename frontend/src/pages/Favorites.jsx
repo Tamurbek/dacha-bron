@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '../i18n/useI18n';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { listings } from '../data/listings';
+import { API_V1_URL } from '../api/config';
 import { ListingCard } from '../components/ListingCard';
 import { Heart, Home } from 'lucide-react';
 import { Button } from '../components/ui/Button';
@@ -15,11 +15,44 @@ export function Favorites() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        setIsLoading(true);
-        const filtered = listings.filter(l => favorites.includes(l.id));
-        setFavoriteListings(filtered);
-        const timer = setTimeout(() => setIsLoading(false), 500);
-        return () => clearTimeout(timer);
+        const fetchFavorites = async () => {
+            setIsLoading(true);
+            try {
+                if (favorites.length === 0) {
+                    setFavoriteListings([]);
+                    setIsLoading(false);
+                    return;
+                }
+
+                // Create an array of fetch promises
+                const promises = favorites.map(id =>
+                    fetch(`${API_V1_URL}/listings/${id}`).then(res => {
+                        if (!res.ok) return null;
+                        return res.json();
+                    })
+                );
+
+                const results = await Promise.all(promises);
+
+                // Filter out nulls and map fields
+                const validListings = results
+                    .filter(item => item !== null)
+                    .map(l => ({
+                        ...l,
+                        pricePerNight: l.price_per_night,
+                        guestsMax: l.guests_max,
+                        videoUrl: l.video_url
+                    }));
+
+                setFavoriteListings(validListings);
+            } catch (error) {
+                console.error("Error fetching favorites:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchFavorites();
     }, [favorites]);
 
     if (isLoading) {
