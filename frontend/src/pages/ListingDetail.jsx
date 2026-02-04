@@ -217,7 +217,7 @@ export function ListingDetail() {
 
             {/* Luxury Cinematic Hero Gallery */}
             <div className="relative mb-16 group">
-                <div className="flex flex-col md:flex-row gap-4 h-[500px] md:h-[650px]">
+                <div className="flex flex-col md:flex-row gap-4 h-[400px] md:h-[480px]">
                     {/* Primary Large Image */}
                     <div
                         className="flex-[1.8] relative cursor-pointer overflow-hidden rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 shadow-2xl shadow-black/5"
