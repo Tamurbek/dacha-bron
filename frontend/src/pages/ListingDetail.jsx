@@ -454,19 +454,19 @@ export function ListingDetail() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[1000] bg-black flex flex-col items-center justify-center"
+                        className="fixed inset-0 z-[1000] bg-black overflow-hidden"
                     >
                         {/* Close button */}
                         <button
                             onClick={() => setIsLightboxOpen(false)}
-                            className="absolute top-8 right-8 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all z-[1001]"
+                            className="absolute top-8 right-8 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all z-[1010]"
                         >
                             <X size={32} />
                         </button>
 
-                        <div className="relative w-full h-full flex flex-col">
+                        <div className="w-full h-full flex flex-col overflow-hidden">
                             {/* Main Slide */}
-                            <div className="flex-grow flex items-center justify-center p-4 md:p-12">
+                            <div className="flex-1 relative flex items-center justify-center p-4 md:p-12">
                                 <motion.div
                                     key={mainImage}
                                     initial={{ opacity: 0, scale: 0.95 }}
@@ -516,7 +516,7 @@ export function ListingDetail() {
                             </button>
 
                             {/* Thumbnail Row */}
-                            <div className="h-32 bg-black/50 backdrop-blur-xl border-t border-white/10 flex items-center px-8 overflow-x-auto space-x-4">
+                            <div className="h-32 bg-gray-900/80 backdrop-blur-2xl border-t border-white/5 flex items-center px-8 overflow-x-auto space-x-4 relative z-[1020] no-scrollbar">
                                 {listing.videoUrl && (
                                     <div
                                         onClick={() => setMainImage(0)}

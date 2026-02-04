@@ -153,7 +153,8 @@ body.mobile-sim footer {
 }
 
 .dark .listing-popup .leaflet-popup-content-wrapper {
-  background: #111827 !important; /* gray-900 */
+  background: #111827 !important;
+  /* gray-900 */
 }
 
 .listing-popup .leaflet-popup-content {
@@ -170,4 +171,14 @@ body.mobile-sim footer {
 
 .listing-popup a {
   @apply no-underline text-inherit !important;
+}
+
+/* Custom scrollbar hiding utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
