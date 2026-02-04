@@ -73,7 +73,7 @@ export function Checkout() {
     };
 
     const nextStep = () => {
-        if (step === 3) {
+        if (step === 2) {
             handleCompleteBooking();
         } else {
             setStep(step + 1);
@@ -107,14 +107,14 @@ export function Checkout() {
                 throw new Error(errorData.detail || 'Failed to create booking');
             }
 
-            setStep(4);
+            setStep(3);
         } catch (error) {
             console.error('Booking error:', error);
             alert(`Xatolik yuz berdi: ${error.message}`);
         }
     };
 
-    if (step === 4) {
+    if (step === 3) {
         return (
             <div className="max-w-xl mx-auto px-4 py-24 text-center">
                 <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
@@ -138,12 +138,12 @@ export function Checkout() {
                     <ChevronLeft />
                 </button>
                 <div className="flex items-center space-x-4">
-                    {[1, 2, 3].map((s) => (
+                    {[1, 2].map((s) => (
                         <div key={s} className="flex items-center">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= s ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-500'}`}>
                                 {s}
                             </div>
-                            {s < 3 && <div className={`w-12 h-0.5 mx-2 ${step > s ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'}`} />}
+                            {s < 2 && <div className={`w-12 h-0.5 mx-2 ${step > s ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'}`} />}
                         </div>
                     ))}
                 </div>
@@ -207,38 +207,6 @@ export function Checkout() {
                                 </div>
                             </div>
                             <Button onClick={nextStep} className="w-full md:w-auto px-12 py-3 rounded-full mt-8" disabled={!formData.name || !formData.phone}>
-                                To'lovga o'tish
-                            </Button>
-                        </div>
-                    )}
-
-                    {step === 3 && (
-                        <div className="space-y-6">
-                            <h2 className="text-2xl font-bold">3. To'lov usuli</h2>
-                            <div className="space-y-3">
-                                {[
-                                    { id: 'payme', name: 'Payme', icon: CreditCard },
-                                    { id: 'click', name: 'Click', icon: Wallet },
-                                    { id: 'cash', name: 'Naqd pul', icon: Landmark },
-                                ].map((m) => (
-                                    <label key={m.id} className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all cursor-pointer ${formData.payment === m.id ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/10' : 'border-gray-100 dark:border-gray-800'}`}>
-                                        <div className="flex items-center space-x-4">
-                                            <div className={`p-2 rounded-xl ${formData.payment === m.id ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'}`}>
-                                                <m.icon className="w-6 h-6" />
-                                            </div>
-                                            <span className="font-bold">{m.name}</span>
-                                        </div>
-                                        <input
-                                            type="radio"
-                                            name="payment"
-                                            checked={formData.payment === m.id}
-                                            onChange={() => setFormData({ ...formData, payment: m.id })}
-                                            className="w-5 h-5 accent-primary-600"
-                                        />
-                                    </label>
-                                ))}
-                            </div>
-                            <Button onClick={nextStep} className="w-full md:w-auto px-12 py-4 rounded-full mt-8 font-bold text-lg">
                                 {t('confirm_booking')}
                             </Button>
                         </div>
