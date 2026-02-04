@@ -2,6 +2,7 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
+from app.core import security
 from app.models.user import User as UserModel
 from app.schemas.user import User, UserCreate, UserUpdate, UserPagination
 import math
@@ -51,7 +52,7 @@ def update_user(
     update_data = user_in.model_dump(exclude_unset=True)
     if update_data.get("password"):
         # Hash password in real app
-        user.hashed_password = update_data["password"]
+        user.hashed_password = security.get_password_hash(update_data["password"])
         del update_data["password"]
         
     for field, value in update_data.items():
@@ -90,7 +91,7 @@ def create_user(
     # Note: In a real app, hash the password
     user = UserModel(
         email=user_in.email,
-        hashed_password=user_in.password, # Placeholder
+        hashed_password=security.get_password_hash(user_in.password),
         full_name=user_in.full_name,
         role=user_in.role,
         status=user_in.status

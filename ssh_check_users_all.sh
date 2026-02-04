@@ -5,6 +5,10 @@ set password "Code2025#"
 
 spawn ssh $host "docker exec dacha-db-1 psql -U postgres -d dacha -c 'SELECT * FROM \"user\";'"
 expect {
+    "(yes/no)?" {
+        send "yes\r"
+        exp_continue
+    }
     "password:" {
         send "$password\r"
     }

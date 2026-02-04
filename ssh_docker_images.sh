@@ -5,6 +5,10 @@ set password "Code2025#"
 
 spawn ssh $host "cd /var/www/dacha && docker images"
 expect {
+    "(yes/no)?" {
+        send "yes\r"
+        exp_continue
+    }
     "password:" {
         send "$password\r"
     }

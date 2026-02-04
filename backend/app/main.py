@@ -20,6 +20,7 @@ app.add_middleware(
         "http://www.jizzaxrest.uz",
         "http://localhost:5173",
         "http://localhost:3000",
+        "https://small-sale-front.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
