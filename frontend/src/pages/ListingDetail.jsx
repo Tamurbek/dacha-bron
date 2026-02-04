@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n/useI18n';
 import { listings } from '../data/listings';
-import { Star, MapPin, Users, Bed, Bath, Wifi, Wind, Flame, Waves, Coffee, Utensils, Share2, Heart, ChevronLeft, ChevronRight, Play, Smile, Maximize, Minimize, X, CheckCircle2, LayoutGrid, MessageSquare, Loader2 } from 'lucide-react';
+import { Star, MapPin, Users, Bed, Bath, Wifi, Wind, Flame, Waves, Coffee, Utensils, Share2, Heart, ChevronLeft, ChevronRight, Play, Smile, Maximize, Minimize, X, CheckCircle2, LayoutGrid, MessageSquare, Loader2, Send, Check } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { BookingCard } from '../components/BookingCard';
@@ -76,6 +76,24 @@ export function ListingDetail() {
     const [shareStatus, setShareStatus] = useState('ideal'); // 'ideal' or 'copied'
     const [reviews, setReviews] = useState([]);
     const [isReviewsLoading, setIsReviewsLoading] = useState(false);
+    const [reviewForm, setReviewForm] = useState({ user_name: '', rating: 5, comment: '' });
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+    const [showReviewSuccess, setShowReviewSuccess] = useState(false);
+
+    const fetchReviews = async () => {
+        setIsReviewsLoading(true);
+        try {
+            const response = await fetch(`${API_V1_URL}/reviews/?listing_id=${id}`);
+            if (response.ok) {
+                const data = await response.json();
+                setReviews(data.items || []);
+            }
+        } catch (err) {
+            console.error('Error fetching reviews:', err);
+        } finally {
+            setIsReviewsLoading(false);
+        }
+    };
 
     useEffect(() => {
         const fetchListing = async () => {
@@ -106,24 +124,37 @@ export function ListingDetail() {
             }
         };
 
-        const fetchReviews = async () => {
-            setIsReviewsLoading(true);
-            try {
-                const response = await fetch(`${API_V1_URL}/reviews/?listing_id=${id}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setReviews(data.items || []);
-                }
-            } catch (err) {
-                console.error('Error fetching reviews:', err);
-            } finally {
-                setIsReviewsLoading(false);
-            }
-        };
-
         fetchListing();
         fetchReviews();
     }, [id, favorites]);
+
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        if (!reviewForm.user_name || !reviewForm.comment) return;
+
+        setIsSubmittingReview(true);
+        try {
+            const response = await fetch(`${API_V1_URL}/reviews/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    listing_id: parseInt(id),
+                    ...reviewForm
+                }),
+            });
+
+            if (response.ok) {
+                setShowReviewSuccess(true);
+                setReviewForm({ user_name: '', rating: 5, comment: '' });
+                fetchReviews();
+                setTimeout(() => setShowReviewSuccess(false), 3000);
+            }
+        } catch (err) {
+            console.error('Error submitting review:', err);
+        } finally {
+            setIsSubmittingReview(false);
+        }
+    };
 
     const toggleFavorite = () => {
         if (isFavorite) {
@@ -416,7 +447,82 @@ export function ListingDetail() {
                     </div>
 
                     <div className="pt-16 border-t border-gray-100 dark:border-gray-800">
-                        <h2 className="text-3xl font-extrabold mb-10">{t('reviews')}</h2>
+                        <div className="flex items-center justify-between mb-10">
+                            <h2 className="text-3xl font-extrabold">{t('reviews')}</h2>
+                            <Badge variant="secondary" className="px-4 py-2 rounded-xl bg-primary-50 text-primary-700 border-primary-100">
+                                {reviews.length} ta sharh
+                            </Badge>
+                        </div>
+
+                        {/* Review Form */}
+                        <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl shadow-black/5 mb-12">
+                            <h3 className="text-xl font-bold mb-6 flex items-center">
+                                <MessageSquare className="w-5 h-5 mr-2 text-primary-600" />
+                                Sharh qoldirish
+                            </h3>
+                            <form onSubmit={handleReviewSubmit} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-500 ml-1">Ismingiz</label>
+                                        <input
+                                            type="text"
+                                            required
+                                            placeholder="Masalan: Jasur"
+                                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                                            value={reviewForm.user_name}
+                                            onChange={(e) => setReviewForm({ ...reviewForm, user_name: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-500 ml-1">Baholash</label>
+                                        <div className="flex items-center space-x-2 h-[56px] px-6 bg-gray-50 dark:bg-gray-800 rounded-2xl">
+                                            {[1, 2, 3, 4, 5].map((num) => (
+                                                <button
+                                                    key={num}
+                                                    type="button"
+                                                    onClick={() => setReviewForm({ ...reviewForm, rating: num })}
+                                                    className="p-1 transition-transform active:scale-90"
+                                                >
+                                                    <Star
+                                                        className={`w-6 h-6 ${num <= reviewForm.rating ? 'fill-[#FFC107] text-[#FFC107]' : 'text-gray-300 dark:text-gray-600'}`}
+                                                    />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-500 ml-1">Fikringiz</label>
+                                    <textarea
+                                        required
+                                        placeholder="Joy haqida o'z taassurotlaringiz bilan ulashing..."
+                                        rows={4}
+                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium resize-none"
+                                        value={reviewForm.comment}
+                                        onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                                    />
+                                </div>
+                                <Button
+                                    type="submit"
+                                    disabled={isSubmittingReview || !reviewForm.user_name || !reviewForm.comment}
+                                    className="w-full md:w-auto px-10 py-4 h-auto rounded-2xl shadow-lg shadow-primary-600/20"
+                                >
+                                    {isSubmittingReview ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : showReviewSuccess ? (
+                                        <div className="flex items-center">
+                                            <Check className="w-5 h-5 mr-2" />
+                                            Yuborildi!
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center">
+                                            <Send className="w-5 h-5 mr-2" />
+                                            Sharhni yuborish
+                                        </div>
+                                    )}
+                                </Button>
+                            </form>
+                        </div>
                         <div className="space-y-6">
                             {isReviewsLoading ? (
                                 <div className="flex justify-center py-12">
