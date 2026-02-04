@@ -11,6 +11,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { CustomVideoPlayer } from '../components/ui/CustomVideoPlayer';
 import { regions } from '../data/regions';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { AnimatePresence, motion } from 'framer-motion';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -71,6 +72,7 @@ export function ListingDetail() {
     const [favorites, setFavorites] = useLocalStorage('favorites', []);
     const [isFavorite, setIsFavorite] = useState(false);
     const [isMapFullscreen, setIsMapFullscreen] = useState(false);
+    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
     useEffect(() => {
         const fetchListing = async () => {
@@ -179,155 +181,105 @@ export function ListingDetail() {
                 </div>
             </div>
 
-            {/* Gallery */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[300px] md:h-[500px] mb-12">
-                <div className="md:col-span-3 relative rounded-3xl overflow-hidden group bg-gray-100 dark:bg-gray-800">
-                    {listing.videoUrl && mainImage === 0 ? (
-                        listing.videoUrl.includes('youtube.com') || listing.videoUrl.includes('youtu.be') ? (
-                            <iframe
-                                src={getYoutubeEmbedUrl(listing.videoUrl)}
-                                className="absolute inset-0 w-full h-full"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                            ></iframe>
-                        ) : (
-                            <CustomVideoPlayer
-                                src={listing.videoUrl}
-                                className="absolute inset-0 w-full h-full"
-                                autoPlay={true}
-                            />
-                        )
-                    ) : (
-                        (() => {
-                            const currentMedia = listing.images[listing.videoUrl ? mainImage - 1 : mainImage];
-                            const isLocalVideo = isVideo(currentMedia) && !currentMedia.includes('youtube');
-                            return isLocalVideo ? (
-                                <CustomVideoPlayer
-                                    src={currentMedia}
-                                    className="absolute inset-0 w-full h-full"
-                                    autoPlay={true}
-                                />
-                            ) : currentMedia?.includes('youtube.com') || currentMedia?.includes('youtu.be') ? (
-                                <iframe
-                                    src={getYoutubeEmbedUrl(currentMedia)}
-                                    className="absolute inset-0 w-full h-full"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                ></iframe>
-                            ) : (
-                                <img
-                                    src={currentMedia}
-                                    className="absolute inset-0 w-full h-full object-cover select-none"
-                                    alt="Main"
-                                    draggable="false"
-                                    onContextMenu={(e) => e.preventDefault()}
-                                />
-                            );
-                        })()
-                    )}
+            {/* Premium Masonry Gallery */}
+            <div className="relative mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 h-[600px] md:h-[700px] overflow-hidden rounded-[2.5rem]">
+                    {/* Main Image (Top Left) */}
+                    <div
+                        className="md:col-span-4 md:row-span-1 relative cursor-pointer group overflow-hidden bg-gray-100 dark:bg-gray-800"
+                        onClick={() => setMainImage(0)}
+                    >
+                        <img
+                            src={listing.images[0]}
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            alt="Gallery 1"
+                        />
+                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
 
-                    <button
-                        onClick={() => {
-                            const totalItems = listing.images.length + (listing.videoUrl ? 1 : 0);
-                            setMainImage((prev) => (prev > 0 ? prev - 1 : totalItems - 1));
-                        }}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 dark:bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    {/* Tall Vertical Image (Middle) */}
+                    <div
+                        className="md:col-span-4 md:row-span-2 relative cursor-pointer group overflow-hidden bg-gray-100 dark:bg-gray-800"
+                        onClick={() => setMainImage(1)}
                     >
-                        <ChevronLeft />
-                    </button>
-                    <button
-                        onClick={() => {
-                            const totalItems = listing.images.length + (listing.videoUrl ? 1 : 0);
-                            setMainImage((prev) => (prev < totalItems - 1 ? prev + 1 : 0));
-                        }}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 dark:bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        {listing.images[1] ? (
+                            <img
+                                src={listing.images[1]}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                alt="Gallery 2"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-300">Rasm yo'q</div>
+                        )}
+                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+
+                    {/* Top Right Image */}
+                    <div
+                        className="md:col-span-4 md:row-span-1 relative cursor-pointer group overflow-hidden bg-gray-100 dark:bg-gray-800"
+                        onClick={() => setMainImage(2)}
                     >
-                        <ChevronRight />
-                    </button>
-                </div>
-                <div className="hidden md:grid grid-rows-3 gap-4">
-                    {listing.videoUrl && (
-                        <div
-                            className={`rounded-2xl overflow-hidden cursor-pointer border-4 transition-all relative ${mainImage === 0 ? 'border-primary-600' : 'border-transparent'}`}
-                            onClick={() => setMainImage(0)}
-                        >
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
-                                <Play className="w-8 h-8 text-white fill-white" />
+                        {listing.images[2] ? (
+                            <img
+                                src={listing.images[2]}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                alt="Gallery 3"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-300">Rasm yo'q</div>
+                        )}
+                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+
+                    {/* Bottom Left Image */}
+                    <div
+                        className="md:col-span-4 md:row-span-1 relative cursor-pointer group overflow-hidden bg-gray-100 dark:bg-gray-800"
+                        onClick={() => setMainImage(3)}
+                    >
+                        {listing.images[3] ? (
+                            <img
+                                src={listing.images[3]}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                alt="Gallery 4"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-300">Rasm yo'q</div>
+                        )}
+                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+
+                    {/* Bottom Right Image */}
+                    <div
+                        className="md:col-span-4 md:row-span-1 relative cursor-pointer group overflow-hidden bg-gray-100 dark:bg-gray-800"
+                        onClick={() => setMainImage(4)}
+                    >
+                        {listing.images[4] ? (
+                            <img
+                                src={listing.images[4]}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                alt="Gallery 5"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-300">Rasm yo'q</div>
+                        )}
+                        {listing.images.length > 5 && (
+                            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white backdrop-blur-sm group-hover:bg-black/50 transition-all">
+                                <span className="text-3xl font-black">+{listing.images.length - 4}</span>
+                                <span className="text-xs font-bold uppercase tracking-widest mt-2">Barcha rasmlar</span>
                             </div>
-                            {listing.videoUrl && (listing.videoUrl.includes('youtube.com') || listing.videoUrl.includes('youtu.be')) ? (
-                                <img
-                                    src={getYoutubeThumbnail(listing.videoUrl)}
-                                    className="w-full h-full object-cover blur-[2px] select-none"
-                                    alt="Video Thumb"
-                                    draggable="false"
-                                    onContextMenu={(e) => e.preventDefault()}
-                                />
-                            ) : listing.videoUrl ? (
-                                <video
-                                    src={listing.videoUrl}
-                                    className="w-full h-full object-cover blur-[2px]"
-                                    muted
-                                    disablePictureInPicture
-                                    controlsList="nodownload"
-                                    onContextMenu={(e) => e.preventDefault()}
-                                />
-                            ) : (
-                                <img
-                                    src={listing.images[0] || ''}
-                                    className="w-full h-full object-cover blur-[2px] select-none"
-                                    alt="Video Thumb"
-                                    draggable="false"
-                                    onContextMenu={(e) => e.preventDefault()}
-                                />
-                            )}
-                        </div>
-                    )}
-                    {listing.images.slice(0, listing.videoUrl ? 2 : 3).map((img, i) => {
-                        const actualIndex = listing.videoUrl ? i + 1 : i;
-                        const isYoutube = img.includes('youtube.com') || img.includes('youtu.be');
-                        const isLocalVideo = isVideo(img) && !isYoutube;
-                        return (
-                            <div
-                                key={i}
-                                className={`rounded-2xl overflow-hidden cursor-pointer border-4 transition-all relative ${mainImage === actualIndex ? 'border-primary-600' : 'border-transparent'}`}
-                                onClick={() => setMainImage(actualIndex)}
-                            >
-                                {(isYoutube || isLocalVideo) && (
-                                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center z-10">
-                                        <Play className="w-6 h-6 text-white fill-white" />
-                                    </div>
-                                )}
-                                {isYoutube ? (
-                                    <img
-                                        src={getYoutubeThumbnail(img)}
-                                        className="absolute inset-0 w-full h-full object-cover select-none"
-                                        alt={`Thumb ${actualIndex}`}
-                                        draggable="false"
-                                        onContextMenu={(e) => e.preventDefault()}
-                                    />
-                                ) : isLocalVideo ? (
-                                    <video
-                                        src={img}
-                                        className="absolute inset-0 w-full h-full object-cover"
-                                        muted
-                                        playsInline
-                                        disablePictureInPicture
-                                        controlsList="nodownload"
-                                        onContextMenu={(e) => e.preventDefault()}
-                                    />
-                                ) : (
-                                    <img
-                                        src={img}
-                                        className="absolute inset-0 w-full h-full object-cover select-none"
-                                        alt={`Thumb ${actualIndex}`}
-                                        draggable="false"
-                                        onContextMenu={(e) => e.preventDefault()}
-                                    />
-                                )}
-                            </div>
-                        );
-                    })}
+                        )}
+                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
                 </div>
+
+                {/* Show All Photos Button */}
+                <button
+                    onClick={() => setIsLightboxOpen(true)}
+                    className="absolute bottom-8 right-8 px-6 py-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md rounded-2xl shadow-2xl flex items-center space-x-2 hover:scale-105 transition-all text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 z-10"
+                >
+                    <LayoutGrid size={18} className="text-primary-600" />
+                    <span className="text-xs font-black uppercase tracking-wider">Hamma rasmlarni ko'rish</span>
+                </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -461,6 +413,109 @@ export function ListingDetail() {
                     <BookingCard listing={listing} />
                 </div>
             </div>
+            {/* Lightbox Modal */}
+            <AnimatePresence>
+                {isLightboxOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[1000] bg-black flex flex-col items-center justify-center"
+                    >
+                        {/* Close button */}
+                        <button
+                            onClick={() => setIsLightboxOpen(false)}
+                            className="absolute top-8 right-8 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all z-[1001]"
+                        >
+                            <X size={32} />
+                        </button>
+
+                        <div className="relative w-full h-full flex flex-col">
+                            {/* Main Slide */}
+                            <div className="flex-grow flex items-center justify-center p-4 md:p-12">
+                                <motion.div
+                                    key={mainImage}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="relative max-w-6xl w-full h-full flex items-center justify-center"
+                                >
+                                    {(() => {
+                                        const totalItems = listing.images.length + (listing.videoUrl ? 1 : 0);
+                                        const currentIdx = mainImage;
+
+                                        if (listing.videoUrl && currentIdx === 0) {
+                                            return listing.videoUrl.includes('youtube') ? (
+                                                <iframe src={getYoutubeEmbedUrl(listing.videoUrl)} className="w-full h-full rounded-2xl" allowFullScreen />
+                                            ) : (
+                                                <video src={listing.videoUrl} className="max-h-full max-w-full rounded-2xl" controls autoPlay />
+                                            )
+                                        }
+
+                                        const imgIdx = listing.videoUrl ? currentIdx - 1 : currentIdx;
+                                        const media = listing.images[imgIdx];
+                                        if (isVideo(media)) {
+                                            return <video src={media} className="max-h-full max-w-full rounded-2xl" controls autoPlay />
+                                        }
+                                        return <img src={media} className="max-h-full max-w-full object-contain rounded-2xl" alt="" />
+                                    })()}
+                                </motion.div>
+                            </div>
+
+                            {/* Controls */}
+                            <button
+                                onClick={() => {
+                                    const total = listing.images.length + (listing.videoUrl ? 1 : 0);
+                                    setMainImage(prev => prev > 0 ? prev - 1 : total - 1);
+                                }}
+                                className="absolute left-8 top-1/2 -translate-y-1/2 p-5 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all"
+                            >
+                                <ChevronLeft size={40} />
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const total = listing.images.length + (listing.videoUrl ? 1 : 0);
+                                    setMainImage(prev => prev < total - 1 ? prev + 1 : 0);
+                                }}
+                                className="absolute right-8 top-1/2 -translate-y-1/2 p-5 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all"
+                            >
+                                <ChevronRight size={40} />
+                            </button>
+
+                            {/* Thumbnail Row */}
+                            <div className="h-32 bg-black/50 backdrop-blur-xl border-t border-white/10 flex items-center px-8 overflow-x-auto space-x-4">
+                                {listing.videoUrl && (
+                                    <div
+                                        onClick={() => setMainImage(0)}
+                                        className={`flex-shrink-0 h-20 w-32 rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${mainImage === 0 ? 'border-primary-500 scale-105' : 'border-transparent opacity-50'}`}
+                                    >
+                                        <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                                            <Play size={24} className="text-white" />
+                                        </div>
+                                    </div>
+                                )}
+                                {listing.images.map((img, i) => {
+                                    const idx = listing.videoUrl ? i + 1 : i;
+                                    return (
+                                        <div
+                                            key={i}
+                                            onClick={() => setMainImage(idx)}
+                                            className={`flex-shrink-0 h-20 w-32 rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${mainImage === idx ? 'border-primary-500 scale-105' : 'border-transparent opacity-50'}`}
+                                        >
+                                            {isVideo(img) ? (
+                                                <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                                                    <Play size={20} className="text-white" />
+                                                </div>
+                                            ) : (
+                                                <img src={img} className="w-full h-full object-cover" alt="" />
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -275,44 +275,64 @@ export const AdminListingsForm = () => {
         }
     };
 
-    const handleFileUpload = (e, field) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    const handleFileUpload = async (e, field) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        if (field === 'gallery' && formData.images.length + files.length > 10) {
+            alert('Maksimal 10 ta rasm yuklash mumkin');
+            return;
+        }
 
         setUploadingField(field);
         setUploadProgress(0);
 
-        const formDataPayload = new FormData();
-        formDataPayload.append('file', file);
+        const uploadFile = (file) => {
+            return new Promise((resolve, reject) => {
+                const formDataPayload = new FormData();
+                formDataPayload.append('file', file);
 
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', `${API_V1_URL}/upload/file`, true);
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `${API_V1_URL}/upload/file`, true);
 
-        xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-                const percentComplete = Math.round((event.loaded / event.total) * 100);
-                setUploadProgress(percentComplete);
-            }
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const percentComplete = Math.round((event.loaded / event.total) * 100);
+                        setUploadProgress(percentComplete);
+                    }
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        resolve(JSON.parse(xhr.responseText).url);
+                    } else {
+                        reject(new Error('Yuklashda xatolik'));
+                    }
+                };
+                xhr.onerror = () => reject(new Error('Tarmoq xatosi'));
+                xhr.send(formDataPayload);
+            });
         };
 
-        xhr.onload = () => {
-            if (xhr.status === 200) {
-                const data = JSON.parse(xhr.responseText);
-                if (field === 'video') {
-                    setFormData(prev => ({ ...prev, videoUrl: data.url }));
-                } else if (field === 'gallery') {
-                    setFormData(prev => ({ ...prev, images: [...prev.images, data.url] }));
-                }
-                setUploadingField(null);
-                setUploadProgress(0);
+        try {
+            if (field === 'video') {
+                const url = await uploadFile(files[0]);
+                setFormData(prev => ({ ...prev, videoUrl: url }));
             } else {
-                alert('Yuklashda xatolik yuz berdi');
-                setUploadingField(null);
-                setUploadProgress(0);
+                const newUrls = [];
+                for (let i = 0; i < files.length; i++) {
+                    setUploadProgress(Math.round((i / files.length) * 100));
+                    const url = await uploadFile(files[i]);
+                    newUrls.push(url);
+                }
+                setFormData(prev => ({ ...prev, images: [...prev.images, ...newUrls].slice(0, 10) }));
             }
-        };
-
-        xhr.send(formDataPayload);
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            setUploadingField(null);
+            setUploadProgress(0);
+        }
     };
 
     const handleSave = async () => {
