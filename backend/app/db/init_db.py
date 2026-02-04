@@ -11,6 +11,18 @@ def init_db(db: Session) -> None:
     Base.metadata.create_all(bind=engine)
     print("Tables created.")
 
+    # Manual migration for missing columns (since we don't use Alembic)
+    from sqlalchemy import text
+    try:
+        with engine.connect() as conn:
+            # Check if google_maps_url exists in listing table
+            # This is specific to PostgreSQL
+            conn.execute(text("ALTER TABLE listing ADD COLUMN IF NOT EXISTS google_maps_url VARCHAR"))
+            conn.commit()
+            print("Successfully checked/added google_maps_url column.")
+    except Exception as e:
+        print(f"Migration error (might be okay if column exists): {e}")
+
     # Seed Amenities if empty
     if db.query(Amenity).count() == 0:
         print("Seeding amenities...")
