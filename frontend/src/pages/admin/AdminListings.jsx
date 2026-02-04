@@ -806,7 +806,18 @@ export const AdminListings = () => {
                                         />
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
-                                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Google Maps Locatsiya (Link)</label>
+                                        <div className="flex justify-between items-center">
+                                            <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Google Maps Locatsiya (Link)</label>
+                                            {formData.googleMapsUrl && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => window.open(formData.googleMapsUrl, '_blank')}
+                                                    className="text-[10px] font-black text-primary hover:underline uppercase tracking-widest"
+                                                >
+                                                    Ochib ko'rish
+                                                </button>
+                                            )}
+                                        </div>
                                         <input
                                             type="text"
                                             value={formData.googleMapsUrl}

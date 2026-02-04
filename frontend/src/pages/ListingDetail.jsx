@@ -139,18 +139,7 @@ export function ListingDetail() {
                     <h1 className="text-3xl font-extrabold">{listing.title}</h1>
                     <div className="flex items-center mt-2 text-gray-600 dark:text-gray-300">
                         <MapPin className="w-4 h-4 mr-1" />
-                        {listing.googleMapsUrl ? (
-                            <a
-                                href={listing.googleMapsUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="underline font-medium hover:text-primary-600 transition-colors"
-                            >
-                                {listing.location} (Xaritada ko'rish)
-                            </a>
-                        ) : (
-                            <span className="underline font-medium">{listing.location}</span>
-                        )}
+                        <span className="font-medium">{listing.location}</span>
                     </div>
                 </div>
 
@@ -358,6 +347,48 @@ export function ListingDetail() {
                                     </div>
                                 )
                             })}
+                        </div>
+                    </div>
+
+                    <div className="pt-10 border-t border-gray-100 dark:border-gray-800">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                            <h2 className="text-2xl font-bold">{t('location')}</h2>
+                            {listing.googleMapsUrl && (
+                                <Button
+                                    onClick={() => window.open(listing.googleMapsUrl, '_blank')}
+                                    className="flex items-center justify-center space-x-2 shadow-lg shadow-primary-600/20 px-6 py-3"
+                                >
+                                    <MapPin className="w-4 h-4" />
+                                    <span>{t('get_directions')}</span>
+                                </Button>
+                            )}
+                        </div>
+
+                        <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 group hover:border-primary-500/30 transition-all duration-500">
+                            <div className="flex items-start space-x-4">
+                                <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm text-primary-600 group-hover:scale-110 transition-transform duration-500">
+                                    <MapPin className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <p className="text-xl font-extrabold text-gray-900 dark:text-white leading-tight">
+                                        {listing.location}
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium italic">
+                                        {regionName}
+                                    </p>
+
+                                    {listing.googleMapsUrl && (
+                                        <div className="mt-4 flex flex-wrap gap-2">
+                                            <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-black uppercase tracking-wider rounded-lg">
+                                                Aniq locatsiya kiritilgan
+                                            </span>
+                                            <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 text-[10px] font-black uppercase tracking-wider rounded-lg">
+                                                Ilovada ochish tayyor
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
