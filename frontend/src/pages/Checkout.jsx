@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useI18n } from '../i18n/useI18n';
 import { API_V1_URL } from '../api/config';
+import { formatPhoneNumber } from '../utils/format';
 import { ChevronLeft, CheckCircle, CreditCard, Wallet, Landmark, Phone, User, Calendar, Users, Star } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -201,7 +202,7 @@ export function Checkout() {
                                             placeholder="+998"
                                             className="pl-12 py-3"
                                             value={formData.phone}
-                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                            onChange={(e) => setFormData({ ...formData, phone: formatPhoneNumber(e.target.value) })}
                                         />
                                     </div>
                                 </div>
