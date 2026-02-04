@@ -215,112 +215,89 @@ export function ListingDetail() {
                 </div>
             </div>
 
-            {/* Premium Three-Column Gallery */}
-            <div className="relative mb-12">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 h-[450px] md:h-[600px]">
-                    {/* Left Column */}
-                    <div className="md:col-span-3 grid grid-rows-2 gap-3">
-                        {/* Top Left */}
-                        <div
-                            className="relative cursor-pointer group overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-3xl"
-                            onClick={() => { setMainImage(0); setIsLightboxOpen(true); }}
-                        >
-                            <img
-                                src={listing.images[0]}
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                alt="Gallery 1"
-                            />
-                            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            {/* Luxury Cinematic Hero Gallery */}
+            <div className="relative mb-16 group">
+                <div className="flex flex-col md:flex-row gap-4 h-[500px] md:h-[650px]">
+                    {/* Primary Large Image */}
+                    <div
+                        className="flex-[1.8] relative cursor-pointer overflow-hidden rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 shadow-2xl shadow-black/5"
+                        onClick={() => { setMainImage(0); setIsLightboxOpen(true); }}
+                    >
+                        <img
+                            src={listing.images[0]}
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                            alt="Main Hero"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+                        {/* Premium Label */}
+                        <div className="absolute top-6 left-6 px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white text-[10px] font-black uppercase tracking-widest shadow-2xl">
+                            Premium Dacha
                         </div>
-                        {/* Bottom Left */}
+                    </div>
+
+                    {/* Secondary Stacked Column */}
+                    <div className="flex-1 flex flex-col gap-4">
+                        {/* Top Secondary */}
                         <div
-                            className="relative cursor-pointer group overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-3xl"
-                            onClick={() => { setMainImage(3); setIsLightboxOpen(true); }}
+                            className="flex-1 relative cursor-pointer overflow-hidden rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 shadow-xl shadow-black/5"
+                            onClick={() => { setMainImage(1); setIsLightboxOpen(true); }}
                         >
-                            {listing.images[3] ? (
+                            {listing.images[1] ? (
                                 <img
-                                    src={listing.images[3]}
-                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                    alt="Gallery 4"
+                                    src={listing.images[1]}
+                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                    alt="Secondary 1"
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-gray-300">Rasm yo'q</div>
                             )}
-                            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors" />
                         </div>
-                    </div>
 
-                    {/* Middle Column - Tall vertical */}
-                    <div
-                        className="md:col-span-5 relative cursor-pointer group overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-3xl"
-                        onClick={() => { setMainImage(1); setIsLightboxOpen(true); }}
-                    >
-                        {listing.images[1] ? (
-                            <img
-                                src={listing.images[1]}
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                alt="Gallery 2"
-                            />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-300">Rasm yo'q</div>
-                        )}
-                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-
-                    {/* Right Column */}
-                    <div className="md:col-span-4 grid grid-rows-2 gap-3">
-                        {/* Top Right */}
+                        {/* Bottom Secondary + View All Trigger */}
                         <div
-                            className="relative cursor-pointer group overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-3xl"
+                            className="flex-1 relative cursor-pointer overflow-hidden rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 shadow-xl shadow-black/5"
                             onClick={() => { setMainImage(2); setIsLightboxOpen(true); }}
                         >
                             {listing.images[2] ? (
                                 <img
                                     src={listing.images[2]}
-                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                    alt="Gallery 3"
+                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                    alt="Secondary 2"
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-gray-300">Rasm yo'q</div>
                             )}
-                            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                        {/* Bottom Right + Overlay */}
-                        <div
-                            className="relative cursor-pointer group overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-3xl"
-                            onClick={() => setIsLightboxOpen(true)}
-                        >
-                            {listing.images[4] ? (
-                                <img
-                                    src={listing.images[4]}
-                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                    alt="Gallery 5"
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-300">Rasm yo'q</div>
-                            )}
-                            {listing.images.length > 5 && (
-                                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-white group-hover:bg-black/50 transition-all border-4 border-white/10 m-2 rounded-[2rem]">
-                                    <span className="text-4xl font-black drop-shadow-lg">+{listing.images.length - 4}</span>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] mt-2 opacity-80">Barcha rasmlar</span>
 
-                                    <button className="mt-4 px-6 py-2.5 bg-white text-gray-900 rounded-full text-[10px] font-black uppercase tracking-wider shadow-xl transform group-hover:scale-110 transition-all">
-                                        Ko'rish
-                                    </button>
+                            {/* Glassmorphism View All Card */}
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div
+                                    onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(true); }}
+                                    className="px-8 py-5 bg-black/40 backdrop-blur-2xl border border-white/20 rounded-[2rem] text-white flex flex-col items-center group/btn hover:bg-black/60 transition-all duration-500 transform hover:scale-105"
+                                >
+                                    <span className="text-3xl font-black mb-1">
+                                        {listing.images.length > 3 ? `+${listing.images.length - 2}` : 'Barcha'}
+                                    </span>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Rasmlar</span>
+
+                                    <div className="mt-4 flex items-center space-x-2 text-[9px] font-black px-4 py-2 bg-white text-black rounded-full opacity-0 group-hover/btn:opacity-100 transition-all duration-500 translate-y-2 group-hover/btn:translate-y-0">
+                                        <span>KO'RISH</span>
+                                        <Maximize size={10} />
+                                    </div>
                                 </div>
-                            )}
-                            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Show All Photos Floating Badge (Subtle) */}
+                {/* Floating Bottom Navigation Badge (Mobile only) */}
                 <button
                     onClick={() => setIsLightboxOpen(true)}
-                    className="absolute bottom-6 right-6 px-5 py-2.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md rounded-2xl shadow-xl flex items-center space-x-2 hover:scale-105 transition-all text-gray-900 dark:text-white border border-gray-100/50 dark:border-gray-800/50 z-10 md:hidden"
+                    className="md:hidden absolute bottom-6 right-6 px-6 py-3 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex items-center space-x-2 border border-gray-100 dark:border-gray-800 z-10 animate-bounce"
                 >
                     <LayoutGrid size={16} className="text-primary-600" />
-                    <span className="text-[10px] font-black uppercase tracking-wider">Barchasi</span>
+                    <span className="text-[10px] font-black uppercase">Barcha rasmlar</span>
                 </button>
             </div>
 
