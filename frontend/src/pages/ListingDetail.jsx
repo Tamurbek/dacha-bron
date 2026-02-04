@@ -459,14 +459,14 @@ export function ListingDetail() {
                         {/* Close button */}
                         <button
                             onClick={() => setIsLightboxOpen(false)}
-                            className="absolute top-8 right-8 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all z-[1010]"
+                            className="absolute top-4 right-4 md:top-8 md:right-8 p-2 md:p-4 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all z-[1010]"
                         >
-                            <X size={32} />
+                            <X className="w-6 h-6 md:w-8 md:h-8" />
                         </button>
 
                         <div className="w-full h-full flex flex-col overflow-hidden">
                             {/* Main Slide */}
-                            <div className="flex-1 relative flex items-center justify-center p-4 md:p-12">
+                            <div className="flex-1 relative flex items-center justify-center p-2 md:p-12">
                                 <motion.div
                                     key={mainImage}
                                     initial={{ opacity: 0, scale: 0.95 }}
@@ -501,29 +501,29 @@ export function ListingDetail() {
                                     const total = listing.images.length + (listing.videoUrl ? 1 : 0);
                                     setMainImage(prev => prev > 0 ? prev - 1 : total - 1);
                                 }}
-                                className="absolute left-8 top-1/2 -translate-y-1/2 p-5 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all"
+                                className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 p-3 md:p-5 bg-black/20 md:bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all z-[1005]"
                             >
-                                <ChevronLeft size={40} />
+                                <ChevronLeft className="w-8 h-8 md:w-10 md:h-10" />
                             </button>
                             <button
                                 onClick={() => {
                                     const total = listing.images.length + (listing.videoUrl ? 1 : 0);
                                     setMainImage(prev => prev < total - 1 ? prev + 1 : 0);
                                 }}
-                                className="absolute right-8 top-1/2 -translate-y-1/2 p-5 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all"
+                                className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 p-3 md:p-5 bg-black/20 md:bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all z-[1005]"
                             >
-                                <ChevronRight size={40} />
+                                <ChevronRight className="w-8 h-8 md:w-10 md:h-10" />
                             </button>
 
                             {/* Thumbnail Row */}
-                            <div className="h-32 bg-gray-900/80 backdrop-blur-2xl border-t border-white/5 flex items-center px-8 overflow-x-auto space-x-4 relative z-[1020] no-scrollbar">
+                            <div className="h-24 md:h-32 bg-gray-900/80 backdrop-blur-2xl border-t border-white/5 flex items-center px-4 md:px-8 overflow-x-auto space-x-2 md:space-x-4 relative z-[1020] no-scrollbar">
                                 {listing.videoUrl && (
                                     <div
                                         onClick={() => setMainImage(0)}
-                                        className={`flex-shrink-0 h-20 w-32 rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${mainImage === 0 ? 'border-primary-500 scale-105' : 'border-transparent opacity-50'}`}
+                                        className={`flex-shrink-0 h-16 md:h-20 w-24 md:w-32 rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${mainImage === 0 ? 'border-primary-500 scale-105' : 'border-transparent opacity-50'}`}
                                     >
                                         <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-                                            <Play size={24} className="text-white" />
+                                            <Play className="w-6 h-6 md:w-8 md:h-8 text-white" />
                                         </div>
                                     </div>
                                 )}
@@ -533,11 +533,11 @@ export function ListingDetail() {
                                         <div
                                             key={i}
                                             onClick={() => setMainImage(idx)}
-                                            className={`flex-shrink-0 h-20 w-32 rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${mainImage === idx ? 'border-primary-500 scale-105' : 'border-transparent opacity-50'}`}
+                                            className={`flex-shrink-0 h-16 md:h-20 w-24 md:w-32 rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${mainImage === idx ? 'border-primary-500 scale-105' : 'border-transparent opacity-50'}`}
                                         >
                                             {isVideo(img) ? (
                                                 <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-                                                    <Play size={20} className="text-white" />
+                                                    <Play className="w-5 h-5 md:w-6 md:h-6 text-white" />
                                                 </div>
                                             ) : (
                                                 <img src={img} className="w-full h-full object-cover" alt="" />
