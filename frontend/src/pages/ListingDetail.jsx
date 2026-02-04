@@ -397,9 +397,9 @@ export function ListingDetail() {
                                 <div className={`${isMapFullscreen ? 'fixed inset-0 z-[110] bg-white dark:bg-gray-950' : 'h-80 rounded-[1.5rem] overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm'} relative z-0 transition-all duration-500`}>
                                     <button
                                         onClick={() => setIsMapFullscreen(!isMapFullscreen)}
-                                        className="absolute top-4 right-4 z-[120] p-2.5 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-xl shadow-lg hover:scale-105 transition-all text-gray-900 dark:text-white border border-white/20"
+                                        className="absolute top-4 right-4 z-[2000] p-3 bg-white dark:bg-gray-800 rounded-xl shadow-2xl hover:scale-105 transition-all text-gray-900 dark:text-white border-2 border-primary-500"
                                     >
-                                        {isMapFullscreen ? <Minimize size={22} /> : <Maximize size={20} />}
+                                        {isMapFullscreen ? <Minimize size={26} /> : <Maximize size={22} />}
                                     </button>
                                     <MapContainer center={[listing.latitude, listing.longitude]} zoom={14} style={{ height: '100%', width: '100%' }}>
                                         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />

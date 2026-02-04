@@ -272,18 +272,20 @@ export function SearchResults() {
                         <div className={`${isMapFullscreen ? 'fixed inset-0 z-[100] bg-white dark:bg-gray-950' : 'h-[calc(100vh-250px)] min-h-[500px] rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xl'} relative z-0 transition-all duration-500`}>
                             {isMapFullscreen && (
                                 <button
+                                    type="button"
                                     onClick={() => setIsMapFullscreen(false)}
-                                    className="absolute top-6 right-6 z-[110] p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl hover:scale-105 transition-all text-gray-900 dark:text-white border border-gray-100 dark:border-gray-700"
+                                    className="absolute top-6 right-6 z-[2000] p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:scale-105 transition-all text-gray-900 dark:text-white border-2 border-primary-500"
                                 >
-                                    <Minimize className="w-6 h-6" />
+                                    <Minimize className="w-8 h-8" />
                                 </button>
                             )}
                             {!isMapFullscreen && (
                                 <button
+                                    type="button"
                                     onClick={() => setIsMapFullscreen(true)}
-                                    className="absolute top-6 right-6 z-[10] p-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-lg hover:scale-105 transition-all text-gray-900 dark:text-white border border-white/20"
+                                    className="absolute top-6 right-6 z-[1001] p-3 bg-white dark:bg-gray-800 rounded-xl shadow-xl hover:scale-105 transition-all text-gray-900 dark:text-white border-2 border-primary-500"
                                 >
-                                    <Maximize className="w-5 h-5" />
+                                    <Maximize className="w-6 h-6" />
                                 </button>
                             )}
                             <MapContainer center={[39.6332, 68.4993]} zoom={8} style={{ height: '100%', width: '100%' }}>

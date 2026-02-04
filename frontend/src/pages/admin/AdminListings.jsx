@@ -13,9 +13,10 @@ L.Icon.Default.mergeOptions({
 });
 
 const LocationMarker = ({ setCoordinates }) => {
-    useMapEvents({
-        click(e) {
-            setCoordinates(e.latlng.lat, e.latlng.lng);
+    const map = useMapEvents({
+        move() {
+            const center = map.getCenter();
+            setCoordinates(center.lat, center.lng);
         },
     });
     return null;
@@ -864,13 +865,21 @@ export const AdminListings = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => setIsMapFullscreen(!isMapFullscreen)}
-                                                    className={`absolute top-4 right-4 z-[120] p-2 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-xl shadow-lg hover:scale-105 transition-all text-gray-900 dark:text-white border border-white/20`}
+                                                    className={`absolute top-4 right-4 z-[2000] p-3 bg-white dark:bg-gray-800 rounded-xl shadow-2xl hover:scale-105 transition-all text-gray-900 dark:text-white border-2 border-primary-500`}
                                                 >
-                                                    {isMapFullscreen ? <Minimize size={20} /> : <Maximize size={18} />}
+                                                    {isMapFullscreen ? <Minimize size={24} /> : <Maximize size={20} />}
                                                 </button>
+
+                                                {/* Fixed Center Pin */}
+                                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-[1000] pointer-events-none mb-4">
+                                                    <div className="relative flex flex-col items-center">
+                                                        <MapPin className="w-10 h-10 text-primary-600 fill-primary-600/20 drop-shadow-xl" />
+                                                        <div className="w-2 h-2 bg-primary-600 rounded-full shadow-lg border-2 border-white -mt-1" />
+                                                    </div>
+                                                </div>
+
                                                 <MapContainer center={[formData.latitude, formData.longitude]} zoom={13} style={{ height: '100%', width: '100%' }}>
                                                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                                                    <Marker position={[formData.latitude, formData.longitude]} />
                                                     <LocationMarker
                                                         setCoordinates={(lat, lng) => {
                                                             setFormData(prev => ({
