@@ -43,6 +43,8 @@ export const dictionary = {
         rooms: "Xonalar",
         price_range: "Narx oralig'i",
         select_dates_alert: "Iltimos, avval sanalarni tanlang",
+        show_map: "Xaritada ko'rish",
+        show_list: "Ro'yxat ko'rinishi",
     },
     ru: {
         home: "Главная",
@@ -88,6 +90,8 @@ export const dictionary = {
         rooms: "Комнаты",
         price_range: "Диапазон цен",
         select_dates_alert: "Пожалуйста, сначала выберите даты",
+        show_map: "Показать на карте",
+        show_list: "Показать списком",
     },
     en: {
         home: "Home",
@@ -133,5 +137,7 @@ export const dictionary = {
         rooms: "Rooms",
         price_range: "Price range",
         select_dates_alert: "Please select dates first",
+        show_map: "Show map",
+        show_list: "Show list",
     }
 };

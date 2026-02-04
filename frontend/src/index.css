@@ -145,3 +145,29 @@ body.mobile-sim footer {
   position: relative;
   z-index: 9999;
 }
+
+/* Leaflet Popup Styling */
+.listing-popup .leaflet-popup-content-wrapper {
+  @apply rounded-[1.5rem] overflow-hidden p-0 shadow-2xl border-none !important;
+  background: white !important;
+}
+
+.dark .listing-popup .leaflet-popup-content-wrapper {
+  background: #111827 !important; /* gray-900 */
+}
+
+.listing-popup .leaflet-popup-content {
+  @apply m-0 w-auto !important;
+}
+
+.listing-popup .leaflet-popup-tip {
+  @apply shadow-none !important;
+}
+
+.dark .listing-popup .leaflet-popup-tip {
+  background: #111827 !important;
+}
+
+.listing-popup a {
+  @apply no-underline text-inherit !important;
+}

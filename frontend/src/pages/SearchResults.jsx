@@ -5,8 +5,34 @@ import { useI18n } from '../i18n/useI18n';
 import { listings } from '../data/listings';
 import { ListingCard } from '../components/ListingCard';
 import { SearchBar } from '../components/SearchBar';
-import { SlidersHorizontal, ChevronDown, LayoutGrid, X } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, LayoutGrid, X, Map as MapIcon, List } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import { Link } from 'react-router-dom';
+
+// Fix Leaflet marker icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+// Helper component to update map view when results change
+function MapCenterUpdater({ listings }) {
+    const map = useMap();
+    useEffect(() => {
+        if (listings.length > 0) {
+            const bounds = L.latLngBounds(listings.filter(l => l.latitude && l.longitude).map(l => [l.latitude, l.longitude]));
+            if (bounds.isValid()) {
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+    }, [listings, map]);
+    return null;
+}
 
 export function SearchResults() {
     const { t } = useI18n();
@@ -14,6 +40,7 @@ export function SearchResults() {
     const [showFilters, setShowFilters] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [limit, setLimit] = useState(12);
+    const [viewType, setViewType] = useState('grid'); // 'grid' or 'map'
 
     // Filters State
     const [region, setRegion] = useState(searchParams.get('region') || '');
@@ -234,15 +261,37 @@ export function SearchResults() {
                                 </div>
                             ))}
                         </div>
-                    ) : (
+                    ) : viewType === 'grid' ? (
                         <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 mb-12">
                             {filteredListings.slice(0, limit).map((listing) => (
                                 <ListingCard key={listing.id} listing={listing} />
                             ))}
                         </div>
+                    ) : (
+                        <div className="h-[calc(100vh-250px)] min-h-[500px] rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xl relative z-0">
+                            <MapContainer center={[41.2995, 69.2401]} zoom={6} style={{ height: '100%', width: '100%' }}>
+                                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                {filteredListings.filter(l => l.latitude && l.longitude).map((listing) => (
+                                    <Marker key={listing.id} position={[listing.latitude, listing.longitude]}>
+                                        <Popup className="listing-popup">
+                                            <Link to={`/listing/${listing.id}`} className="block w-48 space-y-2 group">
+                                                <div className="aspect-[4/3] rounded-xl overflow-hidden">
+                                                    <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                                </div>
+                                                <div className="px-1">
+                                                    <h4 className="font-bold text-sm line-clamp-1">{listing.title}</h4>
+                                                    <p className="text-primary-600 font-extrabold text-xs">{listing.pricePerNight?.toLocaleString()} UZS</p>
+                                                </div>
+                                            </Link>
+                                        </Popup>
+                                    </Marker>
+                                ))}
+                                <MapCenterUpdater listings={filteredListings} />
+                            </MapContainer>
+                        </div>
                     )}
 
-                    {!isLoading && filteredListings.length > limit && (
+                    {!isLoading && viewType === 'grid' && filteredListings.length > limit && (
                         <div className="flex justify-center pt-8 border-t border-gray-100 dark:border-gray-900 mt-12">
                             <Button onClick={() => setLimit(limit + 12)} className="px-12 h-14 rounded-2xl font-bold shadow-xl shadow-primary-500/20">
                                 Yana yuklash
@@ -265,6 +314,26 @@ export function SearchResults() {
                         </div>
                     )}
                 </div>
+            </div>
+
+            {/* Floating Mobile Toggle Button */}
+            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[70] md:bottom-12">
+                <button
+                    onClick={() => setViewType(viewType === 'grid' ? 'map' : 'grid')}
+                    className="flex items-center space-x-2 px-6 py-3.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all group border border-white/10"
+                >
+                    {viewType === 'grid' ? (
+                        <>
+                            <span className="font-bold text-sm tracking-wide">{t('show_map')}</span>
+                            <MapIcon className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                        </>
+                    ) : (
+                        <>
+                            <span className="font-bold text-sm tracking-wide">{t('show_list')}</span>
+                            <List className="w-4 h-4 group-hover:-rotate-12 transition-transform" />
+                        </>
+                    )}
+                </button>
             </div>
 
             {showFilters && (
