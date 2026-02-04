@@ -216,6 +216,7 @@ export const AdminListings = () => {
         status: 'active',
         images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400'],
         videoUrl: '',
+        googleMapsUrl: '',
         guests_max: 10,
         rooms: 4,
         beds: 5,
@@ -263,6 +264,7 @@ export const AdminListings = () => {
                 status: listing.status || 'active',
                 images: listing.images || [listing.image],
                 videoUrl: listing.videoUrl || listing.video_url || '',
+                googleMapsUrl: listing.google_maps_url || '',
                 guests_max: listing.guests_max || 10,
                 rooms: listing.rooms || 4,
                 beds: listing.beds || 5,
@@ -286,6 +288,7 @@ export const AdminListings = () => {
                 status: 'active',
                 images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400'],
                 videoUrl: '',
+                googleMapsUrl: '',
                 guests_max: 10,
                 rooms: 4,
                 beds: 5,
@@ -359,6 +362,7 @@ export const AdminListings = () => {
             beds: Number(formData.beds),
             baths: Number(formData.baths),
             amenities: formData.amenities,
+            google_maps_url: formData.googleMapsUrl,
             status: formData.status
         };
 
@@ -798,6 +802,16 @@ export const AdminListings = () => {
                                             value={formData.location}
                                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                             placeholder="Masalan: Zomin or Jizzax shahri"
+                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Google Maps Locatsiya (Link)</label>
+                                        <input
+                                            type="text"
+                                            value={formData.googleMapsUrl}
+                                            onChange={(e) => setFormData({ ...formData, googleMapsUrl: e.target.value })}
+                                            placeholder="https://maps.google.com/..."
                                             className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all"
                                         />
                                     </div>

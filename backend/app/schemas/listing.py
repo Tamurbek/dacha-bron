@@ -15,6 +15,7 @@ class ListingBase(BaseModel):
     images: Optional[List[str]] = None
     video_url: Optional[str] = None
     description: Optional[str] = None
+    google_maps_url: Optional[str] = None
     status: Optional[str] = "active"
 
 class ListingCreate(ListingBase):
@@ -22,6 +23,7 @@ class ListingCreate(ListingBase):
     region: str
     location: str
     price_per_night: float
+    google_maps_url: Optional[str] = None
 
 class ListingUpdate(ListingBase):
     pass

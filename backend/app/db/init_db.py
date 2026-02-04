@@ -149,6 +149,7 @@ def init_db(db: Session) -> None:
                     f"https://picsum.photos/seed/uzb-dacha-{id_val}-4/1200/800",
                 ],
                 description=data["description"],
+                google_maps_url="https://maps.google.com/?q=" + data["location"].replace(" ", "+"),
                 status="active"
             )
             db.add(listing)

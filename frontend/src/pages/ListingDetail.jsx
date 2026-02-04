@@ -64,7 +64,8 @@ export function ListingDetail() {
                     pricePerNight: data.price_per_night,
                     reviewsCount: data.reviews_count,
                     guestsMax: data.guests_max,
-                    videoUrl: data.video_url
+                    videoUrl: data.video_url,
+                    googleMapsUrl: data.google_maps_url
                 };
 
                 setListing(mappedListing);
@@ -138,7 +139,18 @@ export function ListingDetail() {
                     <h1 className="text-3xl font-extrabold">{listing.title}</h1>
                     <div className="flex items-center mt-2 text-gray-600 dark:text-gray-300">
                         <MapPin className="w-4 h-4 mr-1" />
-                        <span className="underline font-medium">{listing.location}</span>
+                        {listing.googleMapsUrl ? (
+                            <a
+                                href={listing.googleMapsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline font-medium hover:text-primary-600 transition-colors"
+                            >
+                                {listing.location} (Xaritada ko'rish)
+                            </a>
+                        ) : (
+                            <span className="underline font-medium">{listing.location}</span>
+                        )}
                     </div>
                 </div>
 
