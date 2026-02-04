@@ -480,99 +480,9 @@ export const AdminListingsForm = () => {
                             </div>
                         </div>
                     </div>
-
-                    {/* Media Gallery */}
-                    <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm space-y-6">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-wider">Galereya</h3>
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{formData.images.length} ta fayl</span>
-                        </div>
-
-                        <DndContext
-                            sensors={sensors}
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-                        >
-                            <SortableContext
-                                items={formData.images}
-                                strategy={rectSortingStrategy}
-                            >
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                    {formData.images.map((img, index) => (
-                                        <SortableImage
-                                            key={img}
-                                            img={img}
-                                            index={index}
-                                            onRemove={(idx) => {
-                                                const newImages = formData.images.filter((_, i) => i !== idx);
-                                                setFormData({ ...formData, images: newImages });
-                                            }}
-                                        />
-                                    ))}
-                                    <label className="relative aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/30 overflow-hidden cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-all group">
-                                        {uploadingField === 'gallery' ? (
-                                            <>
-                                                <Loader2 size={24} className="text-primary animate-spin mb-1" />
-                                                <span className="text-[10px] font-bold text-primary">{uploadProgress}%</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Plus size={32} className="text-gray-300 group-hover:text-primary transition-colors" />
-                                                <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-2">Fayl qo'shish</span>
-                                            </>
-                                        )}
-                                        <input
-                                            type="file"
-                                            multiple
-                                            accept="image/*,video/*"
-                                            onChange={(e) => handleFileUpload(e, 'gallery')}
-                                            className="hidden"
-                                        />
-                                    </label>
-                                </div>
-                            </SortableContext>
-                        </DndContext>
-
-                        <div className="pt-6 border-t border-gray-50 dark:border-gray-800 space-y-4">
-                            <div className="flex items-center justify-between">
-                                <label className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center">
-                                    <Video size={16} className="mr-2 text-primary" />
-                                    Asosiy Video (YouTube yoki Fayl)
-                                </label>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="relative">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                                        <Upload size={20} />
-                                    </div>
-                                    <input
-                                        type="file"
-                                        accept="video/*"
-                                        onChange={(e) => handleFileUpload(e, 'video')}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-[10px] font-bold uppercase cursor-pointer transition-all file:hidden"
-                                    />
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-400 uppercase pointer-events-none">
-                                        {uploadingField === 'video' ? `Yuklanmoqda ${uploadProgress}%` : 'Faylni tanlang'}
-                                    </div>
-                                </div>
-                                <div className="relative">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                                        <Video size={20} />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        value={formData.videoUrl}
-                                        onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                                        placeholder="YouTube video link..."
-                                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm font-medium transition-all"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                {/* Right Column: Pricing, Status, Location */}
+                {/* Right Column: Pricing, Status, Amenities */}
                 <div className="space-y-8">
                     {/* Price and Status */}
                     <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm space-y-6">
@@ -600,75 +510,6 @@ export const AdminListingsForm = () => {
                                 <option value="active">🟢 Faol</option>
                                 <option value="inactive">🔴 Nofaol</option>
                             </select>
-                        </div>
-                    </div>
-
-                    {/* Interactive Map Picker */}
-                    <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">Xarita belgilash</h3>
-                            {formData.googleMapsUrl && (
-                                <button
-                                    type="button"
-                                    onClick={() => window.open(formData.googleMapsUrl, '_blank')}
-                                    className="text-[10px] font-black text-primary hover:underline uppercase tracking-widest"
-                                >
-                                    Ochib ko'rish
-                                </button>
-                            )}
-                        </div>
-
-                        <div className={`${isMapFullscreen ? 'fixed inset-0 z-[10000] bg-white dark:bg-gray-950 p-6' : 'h-64 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-inner'} relative transition-none`}>
-                            <button
-                                type="button"
-                                onClick={() => setIsMapFullscreen(!isMapFullscreen)}
-                                className="absolute top-4 right-4 z-[10002] p-3 bg-white dark:bg-gray-800 rounded-xl shadow-2xl hover:scale-105 transition-all text-gray-900 dark:text-white border-2 border-primary-500"
-                            >
-                                {isMapFullscreen ? <Minimize size={26} /> : <Maximize size={22} />}
-                            </button>
-
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-[10001] pointer-events-none pb-0.5">
-                                <div className="flex flex-col items-center">
-                                    <MapPin className="w-10 h-10 text-primary-600 fill-primary-600/20 drop-shadow-xl" />
-                                    <div className="w-2 h-2 bg-primary-600 rounded-full shadow-lg border-2 border-white -mt-1" />
-                                </div>
-                            </div>
-
-                            <MapContainer
-                                center={[formData.latitude, formData.longitude]}
-                                zoom={13}
-                                style={{ height: '100%', width: '100%', zIndex: 1 }}
-                            >
-                                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                                <LocationMarker
-                                    setCoordinates={(lat, lng) => {
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            latitude: lat,
-                                            longitude: lng,
-                                            googleMapsUrl: `https://www.google.com/maps?q=${lat},${lng}`
-                                        }));
-                                    }}
-                                />
-                                <ChangeMapCenter center={[formData.latitude, formData.longitude]} trigger={isMapFullscreen} />
-                            </MapContainer>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3 mt-4">
-                            <input
-                                type="number"
-                                step="any"
-                                value={formData.latitude}
-                                onChange={(e) => setFormData(prev => ({ ...prev, latitude: parseFloat(e.target.value) }))}
-                                className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl text-xs font-bold"
-                            />
-                            <input
-                                type="number"
-                                step="any"
-                                value={formData.longitude}
-                                onChange={(e) => setFormData(prev => ({ ...prev, longitude: parseFloat(e.target.value) }))}
-                                className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl text-xs font-bold"
-                            />
                         </div>
                     </div>
 
@@ -701,6 +542,186 @@ export const AdminListingsForm = () => {
                                 );
                             })}
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Interactive Map Picker - Full Width */}
+            <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm space-y-6">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-wider">Xaritada joylashuv</h3>
+                    <div className="flex items-center space-x-4">
+                        {formData.googleMapsUrl && (
+                            <button
+                                type="button"
+                                onClick={() => window.open(formData.googleMapsUrl, '_blank')}
+                                className="text-xs font-black text-primary hover:underline uppercase tracking-widest"
+                            >
+                                Google Maps'da ochish
+                            </button>
+                        )}
+                        <div className="flex items-center space-x-3 text-xs font-bold text-gray-400">
+                            <span>{formData.latitude.toFixed(6)}</span>
+                            <span>,</span>
+                            <span>{formData.longitude.toFixed(6)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className={`${isMapFullscreen ? 'fixed inset-0 z-[10000] bg-white dark:bg-gray-950 p-6' : 'h-[500px] rounded-[2rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-inner'} relative transition-all duration-500`}>
+                    <button
+                        type="button"
+                        onClick={() => setIsMapFullscreen(!isMapFullscreen)}
+                        className="absolute top-6 right-6 z-[10002] p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl hover:scale-110 transition-all text-gray-900 dark:text-white border-2 border-primary-500"
+                    >
+                        {isMapFullscreen ? <Minimize size={28} /> : <Maximize size={24} />}
+                    </button>
+
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-[10001] pointer-events-none pb-1">
+                        <div className="flex flex-col items-center">
+                            <MapPin className="w-12 h-12 text-primary-600 fill-primary-600/20 drop-shadow-2xl" />
+                            <div className="w-3 h-3 bg-primary-600 rounded-full shadow-lg border-2 border-white -mt-1.5" />
+                        </div>
+                    </div>
+
+                    <MapContainer
+                        center={[formData.latitude, formData.longitude]}
+                        zoom={13}
+                        style={{ height: '100%', width: '100%', zIndex: 1 }}
+                    >
+                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                        <LocationMarker
+                            setCoordinates={(lat, lng) => {
+                                setFormData(prev => ({
+                                    ...prev,
+                                    latitude: lat,
+                                    longitude: lng,
+                                    googleMapsUrl: `https://www.google.com/maps?q=${lat},${lng}`
+                                }));
+                            }}
+                        />
+                        <ChangeMapCenter center={[formData.latitude, formData.longitude]} trigger={isMapFullscreen} />
+                    </MapContainer>
+                </div>
+            </div>
+
+            {/* Media Gallery - Full Width */}
+            <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm space-y-8">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-wider">Galereya va Video</h3>
+                    <div className="flex items-center space-x-4">
+                        <span className="text-xs font-black text-gray-400 uppercase tracking-widest bg-gray-50 dark:bg-gray-800 px-4 py-1.5 rounded-full">
+                            {formData.images.length} ta fayl
+                        </span>
+                    </div>
+                </div>
+
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext
+                        items={formData.images}
+                        strategy={rectSortingStrategy}
+                    >
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                            {formData.images.map((img, index) => (
+                                <SortableImage
+                                    key={img}
+                                    img={img}
+                                    index={index}
+                                    onRemove={(idx) => {
+                                        const newImages = formData.images.filter((_, i) => i !== idx);
+                                        setFormData({ ...formData, images: newImages });
+                                    }}
+                                />
+                            ))}
+                            <label className="relative aspect-square rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/30 overflow-hidden cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-all group">
+                                {uploadingField === 'gallery' ? (
+                                    <>
+                                        <Loader2 size={32} className="text-primary animate-spin mb-2" />
+                                        <span className="text-xs font-bold text-primary">{uploadProgress}%</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus size={40} className="text-gray-300 group-hover:text-primary transition-colors mb-2" />
+                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest font-sans">Rasmlar qo'shish</span>
+                                    </>
+                                )}
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept="image/*,video/*"
+                                    onChange={(e) => handleFileUpload(e, 'gallery')}
+                                    className="hidden"
+                                />
+                            </label>
+                        </div>
+                    </SortableContext>
+                </DndContext>
+
+                <div className="pt-8 border-t border-gray-100 dark:border-gray-800">
+                    <div className="max-w-3xl mx-auto space-y-6">
+                        <div className="flex items-center space-x-3 text-primary">
+                            <Video size={20} />
+                            <h4 className="text-sm font-black uppercase tracking-widest">Asosiy Video Preview</h4>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Fayl orqali yuklash</label>
+                                <div className="relative">
+                                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
+                                        <Upload size={20} />
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept="video/*"
+                                        onChange={(e) => handleFileUpload(e, 'video')}
+                                        className="w-full pl-14 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-[10px] font-bold uppercase cursor-pointer transition-all file:hidden"
+                                    />
+                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-primary uppercase pointer-events-none">
+                                        {uploadingField === 'video' ? `Yuklanmoqda ${uploadProgress}%` : 'Video Tanlang'}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">YouTube Link orqali</label>
+                                <div className="relative">
+                                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
+                                        <Video size={20} />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={formData.videoUrl}
+                                        onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                                        placeholder="https://youtube.com/watch?v=..."
+                                        className="w-full pl-14 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm font-medium transition-all"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {formData.videoUrl && (
+                            <div className="mt-6 aspect-video rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white dark:border-gray-800">
+                                {formData.videoUrl.includes('youtube.com') || formData.videoUrl.includes('youtu.be') ? (
+                                    <iframe
+                                        src={getYoutubeEmbedUrl(formData.videoUrl)}
+                                        className="w-full h-full"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    ></iframe>
+                                ) : isVideo(formData.videoUrl) ? (
+                                    <video src={formData.videoUrl} className="w-full h-full object-cover" controls />
+                                ) : (
+                                    <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+                                        Video topilmadi
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
