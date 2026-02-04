@@ -14,21 +14,38 @@ export function Login() {
 
     const from = location.state?.from?.pathname || '/admin';
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
 
-        // Simulate API call
-        setTimeout(() => {
-            if (email === 'admin' && password === 'admin') {
-                localStorage.setItem('admin_token', 'fake-admin-token');
-                navigate(from, { replace: true });
-            } else {
-                setError('Email yoki parol noto\'g\'ri');
+        try {
+            const formData = new URLSearchParams();
+            formData.append('username', email);
+            formData.append('password', password);
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/login/access-token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || 'Email yoki parol noto\'g\'ri');
             }
+
+            localStorage.setItem('admin_token', data.access_token);
+            navigate(from, { replace: true });
+        } catch (err) {
+            console.error('Login error:', err);
+            setError(err.message || 'Tizim xatosi yuz berdi');
+        } finally {
             setIsLoading(false);
-        }, 1500);
+        }
     };
 
     return (
@@ -61,7 +78,7 @@ export function Login() {
                                         type="text"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="admin"
+                                        placeholder="admin@example.com"
                                         className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-transparent focus:border-primary-600 focus:bg-white dark:focus:bg-gray-900 rounded-2xl outline-none text-gray-900 dark:text-white font-bold transition-all shadow-sm"
                                         required
                                     />
