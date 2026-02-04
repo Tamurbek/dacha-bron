@@ -446,9 +446,10 @@ export const AdminListingsForm = () => {
                                     <Users size={14} className="mr-2" /> Mehmonlar
                                 </label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="numeric"
                                     value={formData.guests_max}
-                                    onChange={(e) => setFormData({ ...formData, guests_max: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, guests_max: e.target.value.replace(/\D/g, '') })}
                                     className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none font-bold"
                                 />
                             </div>
@@ -457,9 +458,10 @@ export const AdminListingsForm = () => {
                                     <LayoutGrid size={14} className="mr-2" /> Xonalar
                                 </label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="numeric"
                                     value={formData.rooms}
-                                    onChange={(e) => setFormData({ ...formData, rooms: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, rooms: e.target.value.replace(/\D/g, '') })}
                                     className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none font-bold"
                                 />
                             </div>
@@ -468,9 +470,10 @@ export const AdminListingsForm = () => {
                                     <Bed size={14} className="mr-2" /> Karavotlar
                                 </label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="numeric"
                                     value={formData.beds}
-                                    onChange={(e) => setFormData({ ...formData, beds: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, beds: e.target.value.replace(/\D/g, '') })}
                                     className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none font-bold"
                                 />
                             </div>
@@ -479,9 +482,10 @@ export const AdminListingsForm = () => {
                                     <Bath size={14} className="mr-2" /> Hammomlar
                                 </label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="numeric"
                                     value={formData.baths}
-                                    onChange={(e) => setFormData({ ...formData, baths: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, baths: e.target.value.replace(/\D/g, '') })}
                                     className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none font-bold"
                                 />
                             </div>
@@ -497,9 +501,10 @@ export const AdminListingsForm = () => {
                             <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Narxi (kunlik)</label>
                             <div className="relative">
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="numeric"
                                     value={formData.price}
-                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, price: e.target.value.replace(/\D/g, '') })}
                                     placeholder="So'mda"
                                     className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-lg font-black text-primary"
                                 />
