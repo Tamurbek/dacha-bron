@@ -397,28 +397,30 @@ export function ListingDetail() {
                         </div>
                     </div>
 
-                    <div className="pt-10 border-t border-gray-100 dark:border-gray-800">
-                        <h2 className="text-2xl font-bold mb-8">{t('reviews')}</h2>
-                        <div className="space-y-8">
+                    <div className="pt-16 border-t border-gray-100 dark:border-gray-800">
+                        <h2 className="text-3xl font-extrabold mb-10">{t('reviews')}</h2>
+                        <div className="space-y-6">
                             {[1, 2].map((r) => (
-                                <div key={r} className="bg-gray-50 dark:bg-gray-900 p-6 rounded-3xl">
-                                    <div className="flex items-center space-x-4 mb-4">
-                                        <div className="w-12 h-12 rounded-full bg-primary-200 text-primary-700 flex items-center justify-center font-bold">
+                                <div key={r} className="bg-[#F8F9FA] dark:bg-gray-900/50 p-8 rounded-[2rem] transition-all duration-300 hover:shadow-xl hover:shadow-black/5 border border-transparent hover:border-gray-200 dark:hover:border-gray-800">
+                                    <div className="flex items-start space-x-5 mb-6">
+                                        <div className="w-16 h-16 rounded-full bg-[#C1E8FF] text-[#004A77] flex items-center justify-center text-2xl font-bold">
                                             J
                                         </div>
-                                        <div>
-                                            <h4 className="font-bold">Jasur Turdiyev</h4>
-                                            <p className="text-xs text-gray-500">Iyun 2023</p>
-                                        </div>
-                                        <div className="flex ml-auto">
-                                            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                                            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                                            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                                            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                                            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                                        <div className="flex-1">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <div className="flex items-center space-x-3">
+                                                    <h4 className="text-xl font-extrabold text-[#1A1A1A] dark:text-white">Jasur Turdiyev</h4>
+                                                    <div className="flex space-x-0.5">
+                                                        {[1, 2, 3, 4, 5].map((star) => (
+                                                            <Star key={star} className="w-5 h-5 fill-[#FFC107] text-[#FFC107]" />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p className="text-sm font-medium text-gray-400 capitalize">Iyun 2023</p>
                                         </div>
                                     </div>
-                                    <p className="text-gray-600 dark:text-gray-400">
+                                    <p className="text-[#4A4A4A] dark:text-gray-300 text-lg leading-relaxed font-medium">
                                         Ajoyib joy! Hammasi toza va tartibli. Oilamiz bilan juda dam oldik. Tavsiya qilaman!
                                     </p>
                                 </div>
