@@ -10,7 +10,7 @@ import { BookingCard } from '../components/BookingCard';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { CustomVideoPlayer } from '../components/ui/CustomVideoPlayer';
 import { regions } from '../data/regions';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -21,6 +21,16 @@ L.Icon.Default.mergeOptions({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
+
+const MapRefresher = ({ trigger }) => {
+    const map = useMap();
+    useEffect(() => {
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 300);
+    }, [map, trigger]);
+    return null;
+};
 
 const isVideo = (url) => {
     if (!url) return false;
@@ -401,7 +411,7 @@ export function ListingDetail() {
                                     >
                                         {isMapFullscreen ? <Minimize size={26} /> : <Maximize size={22} />}
                                     </button>
-                                    <MapContainer center={[listing.latitude, listing.longitude]} zoom={14} style={{ height: '100%', width: '100%' }}>
+                                    <MapContainer center={[listing.latitude, listing.longitude]} zoom={14} style={{ height: '100%', width: '100%', zIndex: 1 }}>
                                         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                                         <Marker position={[listing.latitude, listing.longitude]}>
                                             <Popup>
@@ -409,6 +419,7 @@ export function ListingDetail() {
                                                 <div className="text-xs">{listing.location}</div>
                                             </Popup>
                                         </Marker>
+                                        <MapRefresher trigger={isMapFullscreen} />
                                     </MapContainer>
                                 </div>
                             )}

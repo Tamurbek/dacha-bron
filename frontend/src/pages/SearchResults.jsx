@@ -30,6 +30,9 @@ function MapCenterUpdater({ listings }) {
                 map.fitBounds(bounds, { padding: [50, 50] });
             }
         }
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 200);
     }, [listings, map]);
     return null;
 }

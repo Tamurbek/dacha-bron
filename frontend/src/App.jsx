@@ -9,6 +9,7 @@ import { MainLayout } from './components/MainLayout';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminListings } from './pages/admin/AdminListings';
+import { AdminListingsForm } from './pages/admin/AdminListingsForm';
 import { AdminBookings } from './pages/admin/AdminBookings';
 import { AdminUsers } from './pages/admin/AdminUsers';
 import { AdminSettings } from './pages/admin/AdminSettings';
@@ -39,6 +40,8 @@ function App() {
         }>
           <Route index element={<AdminDashboard />} />
           <Route path="listings" element={<AdminListings />} />
+          <Route path="listings/new" element={<AdminListingsForm />} />
+          <Route path="listings/edit/:id" element={<AdminListingsForm />} />
           <Route path="bookings" element={<AdminBookings />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="amenities" element={<AdminAmenities />} />
