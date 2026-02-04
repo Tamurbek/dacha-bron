@@ -4,6 +4,7 @@ import { Star, Heart, MapPin, Users, Bed } from 'lucide-react';
 import { useI18n } from '../i18n/useI18n';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { regions } from '../data/regions';
+import { formatPrice } from '../utils/format';
 
 const isVideo = (url) => {
     if (!url) return false;
@@ -92,7 +93,7 @@ export function ListingCard({ listing }) {
 
                 <div className="pt-1.5 flex items-baseline space-x-1">
                     <span className="text-base md:text-lg font-extrabold text-primary-600">
-                        {listing.pricePerNight?.toLocaleString() || '0'}
+                        {formatPrice(listing.pricePerNight)}
                     </span>
                     <span className="text-[10px] md:text-xs font-semibold text-gray-500 dark:text-gray-400">
                         UZS / {t('per_night')}

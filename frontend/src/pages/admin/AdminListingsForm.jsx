@@ -1,6 +1,7 @@
 import { API_V1_URL } from '../../api/config';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { formatPrice, unformatPrice } from '../../utils/format';
 import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -503,8 +504,8 @@ export const AdminListingsForm = () => {
                                 <input
                                     type="text"
                                     inputMode="numeric"
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({ ...formData, price: e.target.value.replace(/\D/g, '') })}
+                                    value={formatPrice(formData.price)}
+                                    onChange={(e) => setFormData({ ...formData, price: unformatPrice(e.target.value) })}
                                     placeholder="So'mda"
                                     className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-lg font-black text-primary"
                                 />

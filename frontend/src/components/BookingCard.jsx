@@ -4,6 +4,7 @@ import { Button } from './ui/Button';
 import { useI18n } from '../i18n/useI18n';
 import { DatePicker } from './ui/DatePicker';
 import { useState } from 'react';
+import { formatPrice } from '../utils/format';
 
 export function BookingCard({ listing }) {
     const { t } = useI18n();
@@ -43,7 +44,7 @@ export function BookingCard({ listing }) {
             <div className="flex justify-between items-baseline mb-8">
                 <div className="flex items-baseline space-x-1">
                     <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        {listing.pricePerNight.toLocaleString()}
+                        {formatPrice(listing.pricePerNight)}
                     </span>
                     <span className="text-gray-500 text-sm">UZS / {t('per_night')}</span>
                 </div>
@@ -107,16 +108,16 @@ export function BookingCard({ listing }) {
 
             <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
                 <div className="flex justify-between text-gray-600 dark:text-gray-400 text-sm">
-                    <span className="underline underline-offset-4">{listing.pricePerNight.toLocaleString()} x {nights} {t('per_night')}</span>
-                    <span className="font-semibold">{basePrice.toLocaleString()} UZS</span>
+                    <span className="underline underline-offset-4">{formatPrice(listing.pricePerNight)} x {nights} {t('per_night')}</span>
+                    <span className="font-semibold">{formatPrice(basePrice)} UZS</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-400 text-sm">
                     <span className="underline underline-offset-4">Xizmat haqi (5%)</span>
-                    <span className="font-semibold">{serviceFee.toLocaleString()} UZS</span>
+                    <span className="font-semibold">{formatPrice(serviceFee)} UZS</span>
                 </div>
                 <div className="pt-4 flex justify-between font-bold text-lg text-primary-600">
                     <span>Jami</span>
-                    <span>{total.toLocaleString()} UZS</span>
+                    <span>{formatPrice(total)} UZS</span>
                 </div>
             </div>
         </div>

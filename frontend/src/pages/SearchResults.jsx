@@ -11,6 +11,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { Link } from 'react-router-dom';
+import { formatPrice } from '../utils/format';
 
 // Fix Leaflet marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -302,7 +303,7 @@ export function SearchResults() {
                                                 </div>
                                                 <div className="px-1">
                                                     <h4 className="font-bold text-sm line-clamp-1">{listing.title}</h4>
-                                                    <p className="text-primary-600 font-extrabold text-xs">{listing.pricePerNight?.toLocaleString()} UZS</p>
+                                                    <p className="text-primary-600 font-extrabold text-xs">{formatPrice(listing.pricePerNight)} UZS</p>
                                                 </div>
                                             </Link>
                                         </Popup>

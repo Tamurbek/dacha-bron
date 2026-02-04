@@ -1,6 +1,7 @@
 import { API_V1_URL } from '../../api/config';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { formatPrice } from '../../utils/format';
 import {
     Plus,
     Search,
@@ -183,7 +184,7 @@ export const AdminListings = () => {
                                             </td>
                                             <td className="px-8 py-5">
                                                 <span className="text-sm font-black text-gray-900 dark:text-white">
-                                                    {listing.price.toLocaleString()} <span className="text-[10px] text-gray-400">so'm</span>
+                                                    {formatPrice(listing.price)} <span className="text-[10px] text-gray-400">so'm</span>
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5">
@@ -278,7 +279,7 @@ export const AdminListings = () => {
                                     <div className="flex flex-col">
                                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Kunlik narx</p>
                                         <p className="text-sm font-black text-gray-900 dark:text-white">
-                                            {listing.price.toLocaleString()} <span className="text-[8px]">so'm</span>
+                                            {formatPrice(listing.price)} <span className="text-[8px]">so'm</span>
                                         </p>
                                     </div>
                                     <div className="flex items-center space-x-2">
