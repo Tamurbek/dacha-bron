@@ -78,9 +78,16 @@ const ChangeMapCenter = ({ center, trigger }) => {
     const map = useMapEvents({});
     useEffect(() => {
         map.setView(center, map.getZoom());
-        setTimeout(() => {
-            map.invalidateSize();
-        }, 100);
+        // Forcing Leaflet to recalculate multiple times to ensure it handles the transition
+        const timer1 = setTimeout(() => map.invalidateSize(), 100);
+        const timer2 = setTimeout(() => map.invalidateSize(), 400);
+        const timer3 = setTimeout(() => map.invalidateSize(), 800);
+
+        return () => {
+            clearTimeout(timer1);
+            clearTimeout(timer2);
+            clearTimeout(timer3);
+        }
     }, [center, map, trigger]);
     return null;
 };
@@ -355,7 +362,7 @@ export const AdminListingsForm = () => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+        <div className={`${isMapFullscreen ? '' : 'animate-in fade-in slide-in-from-bottom-4 duration-700'} max-w-5xl mx-auto space-y-8 pb-20`}>
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -568,7 +575,7 @@ export const AdminListingsForm = () => {
                     </div>
                 </div>
 
-                <div className={`${isMapFullscreen ? 'fixed inset-0 z-[10000] bg-white dark:bg-gray-950 p-6' : 'h-[500px] rounded-[2rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-inner'} relative transition-all duration-500`}>
+                <div className={`${isMapFullscreen ? 'fixed inset-0 z-[10000] bg-white dark:bg-gray-950' : 'h-[500px] rounded-[2rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-inner'} relative`}>
                     <button
                         type="button"
                         onClick={() => setIsMapFullscreen(!isMapFullscreen)}
