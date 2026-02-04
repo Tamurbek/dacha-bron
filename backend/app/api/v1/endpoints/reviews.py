@@ -13,13 +13,28 @@ def read_reviews(
     db: Session = Depends(get_db),
     page: int = 1,
     size: int = 10,
-    listing_id: int = None
+    listing_id: int = None,
+    start_date: str = None,
+    end_date: str = None,
+    search: str = None
 ) -> Any:
     skip = (page - 1) * size
     query = db.query(ReviewModel).order_by(ReviewModel.created_at.desc())
     
     if listing_id:
         query = query.filter(ReviewModel.listing_id == listing_id)
+    
+    if start_date:
+        query = query.filter(ReviewModel.created_at >= start_date)
+    if end_date:
+        query = query.filter(ReviewModel.created_at <= end_date)
+    
+    if search:
+        search_filter = f"%{search}%"
+        query = query.filter(
+            (ReviewModel.user_name.ilike(search_filter)) | 
+            (ReviewModel.comment.ilike(search_filter))
+        )
         
     total = query.count()
     reviews = query.offset(skip).limit(size).all()

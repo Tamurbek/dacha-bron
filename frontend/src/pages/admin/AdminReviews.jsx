@@ -16,20 +16,48 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export const AdminReviews = () => {
     const [reviews, setReviews] = useState([]);
+    const [listings, setListings] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [pageSize] = useState(10);
 
-    useEffect(() => {
-        fetchReviews(currentPage, searchTerm);
-    }, [currentPage, searchTerm]);
+    // Filter states
+    const [selectedListing, setSelectedListing] = useState('all');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
 
-    const fetchReviews = async (page = 1, search = '') => {
+    useEffect(() => {
+        fetchListings();
+    }, []);
+
+    useEffect(() => {
+        fetchReviews(currentPage, searchTerm, selectedListing, startDate, endDate);
+    }, [currentPage, searchTerm, selectedListing, startDate, endDate]);
+
+    const fetchListings = async () => {
+        try {
+            const response = await fetch(`${API_V1_URL}/listings/?size=100&status=all`);
+            if (response.ok) {
+                const data = await response.json();
+                setListings(data.items || []);
+            }
+        } catch (error) {
+            console.error('Error fetching listings:', error);
+        }
+    };
+
+    const fetchReviews = async (page = 1, search = '', listingId = 'all', start = '', end = '') => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_V1_URL}/reviews/?page=${page}&size=${pageSize}`);
+            let url = `${API_V1_URL}/reviews/?page=${page}&size=${pageSize}`;
+            if (search) url += `&search=${encodeURIComponent(search)}`;
+            if (listingId !== 'all') url += `&listing_id=${listingId}`;
+            if (start) url += `&start_date=${start}`;
+            if (end) url += `&end_date=${end}`;
+
+            const response = await fetch(url);
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
 
@@ -51,7 +79,7 @@ export const AdminReviews = () => {
                     method: 'DELETE',
                 });
                 if (response.ok) {
-                    fetchReviews(currentPage, searchTerm);
+                    fetchReviews(currentPage, searchTerm, selectedListing, startDate, endDate);
                 }
             } catch (error) {
                 alert('O\'chirishda xatolik yuz berdi');
@@ -61,17 +89,71 @@ export const AdminReviews = () => {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                <div className="flex flex-grow items-center gap-4 max-w-2xl">
-                    <div className="relative flex-grow">
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:flex flex-grow items-center gap-4">
+                    <div className="relative flex-grow max-w-md">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                         <input
                             type="text"
-                            placeholder="Sharhlarni qidirish..."
-                            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                            placeholder="Qidirish (ism, izoh)..."
+                            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 font-medium"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
+                    </div>
+
+                    <div className="flex flex-grow items-center gap-4">
+                        <div className="relative flex-grow max-w-[240px]">
+                            <select
+                                className="w-full pl-4 pr-10 py-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm text-gray-900 dark:text-white font-medium appearance-none"
+                                value={selectedListing}
+                                onChange={(e) => setSelectedListing(e.target.value)}
+                            >
+                                <option value="all">Barcha dachalar</option>
+                                {listings.map(l => (
+                                    <option key={l.id} value={l.id}>{l.title}</option>
+                                ))}
+                            </select>
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                <ChevronRight className="rotate-90" size={16} />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center space-x-2 flex-grow max-w-md bg-white dark:bg-gray-900 p-1.5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <div className="relative flex-1">
+                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                                <input
+                                    type="date"
+                                    className="w-full pl-9 pr-2 py-2 bg-transparent outline-none text-xs font-bold text-gray-700 dark:text-gray-300"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                />
+                            </div>
+                            <div className="h-4 w-[1px] bg-gray-200 dark:bg-gray-800"></div>
+                            <div className="relative flex-1">
+                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                                <input
+                                    type="date"
+                                    className="w-full pl-9 pr-2 py-2 bg-transparent outline-none text-xs font-bold text-gray-700 dark:text-gray-300"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {(selectedListing !== 'all' || startDate || endDate || searchTerm) && (
+                            <button
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    setSelectedListing('all');
+                                    setStartDate('');
+                                    setEndDate('');
+                                }}
+                                className="px-4 py-3.5 bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-red-500 rounded-2xl transition-all shadow-sm font-bold text-xs uppercase tracking-widest"
+                            >
+                                Tozalash
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
