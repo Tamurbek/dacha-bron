@@ -221,7 +221,7 @@ export function ListingDetail() {
                     {/* Primary Large Image */}
                     <div
                         className="flex-[1.8] relative cursor-pointer overflow-hidden rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 shadow-2xl shadow-black/5"
-                        onClick={() => { setMainImage(0); setIsLightboxOpen(true); }}
+                        onClick={() => { setMainImage(listing.videoUrl ? 1 : 0); setIsLightboxOpen(true); }}
                     >
                         <img
                             src={listing.images[0]}
@@ -241,7 +241,7 @@ export function ListingDetail() {
                         {/* Top Secondary */}
                         <div
                             className="flex-1 relative cursor-pointer overflow-hidden rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 shadow-xl shadow-black/5"
-                            onClick={() => { setMainImage(1); setIsLightboxOpen(true); }}
+                            onClick={() => { setMainImage(listing.videoUrl ? 2 : 1); setIsLightboxOpen(true); }}
                         >
                             {listing.images[1] ? (
                                 <img
@@ -258,7 +258,7 @@ export function ListingDetail() {
                         {/* Bottom Secondary + View All Trigger */}
                         <div
                             className="flex-1 relative cursor-pointer overflow-hidden rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 shadow-xl shadow-black/5"
-                            onClick={() => { setMainImage(2); setIsLightboxOpen(true); }}
+                            onClick={() => { setMainImage(listing.videoUrl ? 3 : 2); setIsLightboxOpen(true); }}
                         >
                             {listing.images[2] ? (
                                 <img
@@ -449,9 +449,9 @@ export function ListingDetail() {
                             <X className="w-6 h-6 md:w-8 md:h-8" />
                         </button>
 
-                        <div className="w-full h-full flex flex-col overflow-hidden">
+                        <div className="w-full h-full flex flex-col overflow-hidden relative">
                             {/* Main Slide */}
-                            <div className="flex-1 relative flex items-center justify-center p-2 md:p-12">
+                            <div className="flex-1 relative flex items-center justify-center p-2 md:p-12 overflow-hidden">
                                 <motion.div
                                     key={mainImage}
                                     initial={{ opacity: 0, scale: 0.95 }}
@@ -501,7 +501,7 @@ export function ListingDetail() {
                             </button>
 
                             {/* Thumbnail Row */}
-                            <div className="h-24 md:h-32 bg-gray-900/80 backdrop-blur-2xl border-t border-white/5 flex items-center px-4 md:px-8 overflow-x-auto space-x-2 md:space-x-4 relative z-[1020] no-scrollbar">
+                            <div className="flex-shrink-0 h-24 md:h-32 bg-gray-900/90 backdrop-blur-2xl border-t border-white/5 flex items-center px-4 md:px-8 overflow-x-auto space-x-2 md:space-x-4 relative z-[1020] no-scrollbar">
                                 {listing.videoUrl && (
                                     <div
                                         onClick={() => setMainImage(0)}
