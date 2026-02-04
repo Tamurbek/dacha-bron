@@ -82,6 +82,7 @@ export const AdminReviews = () => {
                         <thead>
                             <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
                                 <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Foydalanuvchi</th>
+                                <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Dacha</th>
                                 <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Rating</th>
                                 <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Izoh</th>
                                 <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Sana</th>
@@ -112,9 +113,19 @@ export const AdminReviews = () => {
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-black text-gray-900 dark:text-white">{review.user_name}</span>
                                                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight flex items-center">
-                                                        <MapPin size={10} className="mr-1" /> ID: {review.listing_id}
+                                                        <User size={10} className="mr-1" /> Foydalanuvchi
                                                     </span>
                                                 </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-black text-primary-600 dark:text-primary-400">
+                                                    {review.listing?.title || 'Dacha topilmadi'}
+                                                </span>
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+                                                    ID: {review.listing_id}
+                                                </span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-5">
