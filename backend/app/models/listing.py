@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, JSON, Text, DateTime
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
 class Listing(Base):
@@ -24,3 +25,5 @@ class Listing(Base):
     status = Column(String, default="active") # 'active' or 'inactive'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    reviews = relationship("Review", back_populates="listing", cascade="all, delete-orphan")

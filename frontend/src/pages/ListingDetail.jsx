@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n/useI18n';
 import { listings } from '../data/listings';
-import { Star, MapPin, Users, Bed, Bath, Wifi, Wind, Flame, Waves, Coffee, Utensils, Share2, Heart, ChevronLeft, ChevronRight, Play, Smile, Maximize, Minimize, X, CheckCircle2, LayoutGrid } from 'lucide-react';
+import { Star, MapPin, Users, Bed, Bath, Wifi, Wind, Flame, Waves, Coffee, Utensils, Share2, Heart, ChevronLeft, ChevronRight, Play, Smile, Maximize, Minimize, X, CheckCircle2, LayoutGrid, MessageSquare, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { BookingCard } from '../components/BookingCard';
@@ -74,6 +74,8 @@ export function ListingDetail() {
     const [isMapFullscreen, setIsMapFullscreen] = useState(false);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [shareStatus, setShareStatus] = useState('ideal'); // 'ideal' or 'copied'
+    const [reviews, setReviews] = useState([]);
+    const [isReviewsLoading, setIsReviewsLoading] = useState(false);
 
     useEffect(() => {
         const fetchListing = async () => {
@@ -104,7 +106,23 @@ export function ListingDetail() {
             }
         };
 
+        const fetchReviews = async () => {
+            setIsReviewsLoading(true);
+            try {
+                const response = await fetch(`${API_V1_URL}/reviews/?listing_id=${id}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setReviews(data.items || []);
+                }
+            } catch (err) {
+                console.error('Error fetching reviews:', err);
+            } finally {
+                setIsReviewsLoading(false);
+            }
+        };
+
         fetchListing();
+        fetchReviews();
     }, [id, favorites]);
 
     const toggleFavorite = () => {
@@ -400,31 +418,44 @@ export function ListingDetail() {
                     <div className="pt-16 border-t border-gray-100 dark:border-gray-800">
                         <h2 className="text-3xl font-extrabold mb-10">{t('reviews')}</h2>
                         <div className="space-y-6">
-                            {[1, 2].map((r) => (
-                                <div key={r} className="bg-[#F8F9FA] dark:bg-gray-900/50 p-8 rounded-[2rem] transition-all duration-300 hover:shadow-xl hover:shadow-black/5 border border-transparent hover:border-gray-200 dark:hover:border-gray-800">
-                                    <div className="flex items-start space-x-5 mb-6">
-                                        <div className="w-16 h-16 rounded-full bg-[#C1E8FF] text-[#004A77] flex items-center justify-center text-2xl font-bold">
-                                            J
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <div className="flex items-center space-x-3">
-                                                    <h4 className="text-xl font-extrabold text-[#1A1A1A] dark:text-white">Jasur Turdiyev</h4>
-                                                    <div className="flex space-x-0.5">
-                                                        {[1, 2, 3, 4, 5].map((star) => (
-                                                            <Star key={star} className="w-5 h-5 fill-[#FFC107] text-[#FFC107]" />
-                                                        ))}
+                            {isReviewsLoading ? (
+                                <div className="flex justify-center py-12">
+                                    <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+                                </div>
+                            ) : reviews.length === 0 ? (
+                                <div className="text-center py-12 bg-gray-50 dark:bg-gray-900/50 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-gray-800">
+                                    <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+                                    <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Hozircha sharhlar yo'q</p>
+                                </div>
+                            ) : (
+                                reviews.map((review) => (
+                                    <div key={review.id} className="bg-[#F8F9FA] dark:bg-gray-900/50 p-8 rounded-[2rem] transition-all duration-300 hover:shadow-xl hover:shadow-black/5 border border-transparent hover:border-gray-200 dark:hover:border-gray-800">
+                                        <div className="flex items-start space-x-5 mb-6">
+                                            <div className="w-16 h-16 rounded-full bg-[#C1E8FF] text-[#004A77] flex items-center justify-center text-2xl font-bold">
+                                                {review.user_name?.charAt(0) || 'U'}
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <div className="flex items-center space-x-3">
+                                                        <h4 className="text-xl font-extrabold text-[#1A1A1A] dark:text-white">{review.user_name}</h4>
+                                                        <div className="flex space-x-0.5">
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <Star key={i} className={`w-5 h-5 ${i < review.rating ? 'fill-[#FFC107] text-[#FFC107]' : 'text-gray-200 dark:text-gray-700'}`} />
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <p className="text-sm font-medium text-gray-400 capitalize">
+                                                    {new Date(review.created_at).toLocaleDateString('uz-UZ', { month: 'long', year: 'numeric' })}
+                                                </p>
                                             </div>
-                                            <p className="text-sm font-medium text-gray-400 capitalize">Iyun 2023</p>
                                         </div>
+                                        <p className="text-[#4A4A4A] dark:text-gray-300 text-lg leading-relaxed font-medium">
+                                            {review.comment}
+                                        </p>
                                     </div>
-                                    <p className="text-[#4A4A4A] dark:text-gray-300 text-lg leading-relaxed font-medium">
-                                        Ajoyib joy! Hammasi toza va tartibli. Oilamiz bilan juda dam oldik. Tavsiya qilaman!
-                                    </p>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>

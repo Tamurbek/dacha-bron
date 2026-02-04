@@ -6,3 +6,4 @@ from app.models.listing import Listing  # noqa
 from app.models.booking import Booking  # noqa
 from app.models.settings import Settings  # noqa
 from app.models.amenity import Amenity  # noqa
+from app.models.review import Review  # noqa

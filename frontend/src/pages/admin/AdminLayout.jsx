@@ -14,7 +14,8 @@ import {
     Plus,
     Sun,
     Moon,
-    Sparkles
+    Sparkles,
+    MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from '../../components/Logo';
@@ -67,6 +68,7 @@ export const AdminLayout = () => {
         { path: '/admin/listings', icon: Home, label: 'Dachalar' },
         { path: '/admin/amenities', icon: Sparkles, label: 'Qulayliklar' },
         { path: '/admin/bookings', icon: CalendarCheck, label: 'Buyurtmalar' },
+        { path: '/admin/reviews', icon: MessageSquare, label: 'Sharhlar' },
         { path: '/admin/users', icon: Users, label: 'Foydalanuvchilar' },
     ];
 
