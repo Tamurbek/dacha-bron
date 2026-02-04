@@ -18,8 +18,10 @@ def init_db(db: Session) -> None:
             # Check if google_maps_url exists in listing table
             # This is specific to PostgreSQL
             conn.execute(text("ALTER TABLE listing ADD COLUMN IF NOT EXISTS google_maps_url VARCHAR"))
+            conn.execute(text("ALTER TABLE listing ADD COLUMN IF NOT EXISTS latitude FLOAT"))
+            conn.execute(text("ALTER TABLE listing ADD COLUMN IF NOT EXISTS longitude FLOAT"))
             conn.commit()
-            print("Successfully checked/added google_maps_url column.")
+            print("Successfully checked/added map columns.")
     except Exception as e:
         print(f"Migration error (might be okay if column exists): {e}")
 
@@ -162,6 +164,8 @@ def init_db(db: Session) -> None:
                 ],
                 description=data["description"],
                 google_maps_url="https://maps.google.com/?q=" + data["location"].replace(" ", "+"),
+                latitude=40.0 + (i % 3), # Dummy coordinates in Uzbekistan range
+                longitude=68.0 + (i % 4),
                 status="active"
             )
             db.add(listing)

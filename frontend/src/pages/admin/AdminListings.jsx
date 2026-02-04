@@ -1,5 +1,34 @@
 import { API_V1_URL } from '../../api/config';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix Leaflet marker icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+const LocationMarker = ({ setCoordinates }) => {
+    useMapEvents({
+        click(e) {
+            setCoordinates(e.latlng.lat, e.latlng.lng);
+        },
+    });
+    return null;
+};
+
+const ChangeMapCenter = ({ center }) => {
+    const map = useMapEvents({});
+    useEffect(() => {
+        map.setView(center, map.getZoom());
+    }, [center, map]);
+    return null;
+};
+
 import {
     Plus,
     Search,
@@ -217,6 +246,8 @@ export const AdminListings = () => {
         images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400'],
         videoUrl: '',
         googleMapsUrl: '',
+        latitude: 41.2995, // Tashkent default
+        longitude: 69.2401,
         guests_max: 10,
         rooms: 4,
         beds: 5,
@@ -265,6 +296,8 @@ export const AdminListings = () => {
                 images: listing.images || [listing.image],
                 videoUrl: listing.videoUrl || listing.video_url || '',
                 googleMapsUrl: listing.google_maps_url || '',
+                latitude: listing.latitude || 41.2995,
+                longitude: listing.longitude || 69.2401,
                 guests_max: listing.guests_max || 10,
                 rooms: listing.rooms || 4,
                 beds: listing.beds || 5,
@@ -289,6 +322,8 @@ export const AdminListings = () => {
                 images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400'],
                 videoUrl: '',
                 googleMapsUrl: '',
+                latitude: 41.2995,
+                longitude: 69.2401,
                 guests_max: 10,
                 rooms: 4,
                 beds: 5,
@@ -363,6 +398,8 @@ export const AdminListings = () => {
             baths: Number(formData.baths),
             amenities: formData.amenities,
             google_maps_url: formData.googleMapsUrl,
+            latitude: Number(formData.latitude),
+            longitude: Number(formData.longitude),
             status: formData.status
         };
 
@@ -805,26 +842,91 @@ export const AdminListings = () => {
                                             className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all"
                                         />
                                     </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <div className="flex justify-between items-center">
-                                            <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Google Maps Locatsiya (Link)</label>
-                                            {formData.googleMapsUrl && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => window.open(formData.googleMapsUrl, '_blank')}
-                                                    className="text-[10px] font-black text-primary hover:underline uppercase tracking-widest"
-                                                >
-                                                    Ochib ko'rish
-                                                </button>
-                                            )}
+                                    <div className="space-y-4 md:col-span-2">
+                                        <div className="flex flex-col space-y-2">
+                                            <div className="flex justify-between items-center">
+                                                <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Locatsiya (Xaritadan tanlang yoki link kiriting)</label>
+                                                {formData.googleMapsUrl && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => window.open(formData.googleMapsUrl, '_blank')}
+                                                        className="text-[10px] font-black text-primary hover:underline uppercase tracking-widest"
+                                                    >
+                                                        Ochib ko'rish
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            <div className="h-64 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-inner z-0">
+                                                <MapContainer center={[formData.latitude, formData.longitude]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                                                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                                    <Marker position={[formData.latitude, formData.longitude]} />
+                                                    <LocationMarker
+                                                        setCoordinates={(lat, lng) => {
+                                                            setFormData(prev => ({
+                                                                ...prev,
+                                                                latitude: lat,
+                                                                longitude: lng,
+                                                                googleMapsUrl: `https://www.google.com/maps?q=${lat},${lng}`
+                                                            }));
+                                                        }}
+                                                    />
+                                                    <ChangeMapCenter center={[formData.latitude, formData.longitude]} />
+                                                </MapContainer>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4 mt-2">
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Latitude</label>
+                                                    <input
+                                                        type="number"
+                                                        step="any"
+                                                        value={formData.latitude}
+                                                        onChange={(e) => setFormData(prev => ({ ...prev, latitude: parseFloat(e.target.value) }))}
+                                                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl text-xs"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Longitude</label>
+                                                    <input
+                                                        type="number"
+                                                        step="any"
+                                                        value={formData.longitude}
+                                                        onChange={(e) => setFormData(prev => ({ ...prev, longitude: parseFloat(e.target.value) }))}
+                                                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl text-xs"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Google Maps Link</label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.googleMapsUrl}
+                                                    onChange={(e) => {
+                                                        const url = e.target.value;
+                                                        setFormData(prev => ({ ...prev, googleMapsUrl: url }));
+
+                                                        // Try to extract coordinates from URL if it's a google maps link
+                                                        // Example: https://www.google.com/maps?q=41.2995,69.2401
+                                                        // Or: https://www.google.com/maps/search/41.2995,69.2401
+                                                        const coordRegex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+                                                        const qRegex = /[q|query]=(-?\d+\.\d+),(-?\d+\.\d+)/;
+
+                                                        const match = url.match(coordRegex) || url.match(qRegex);
+                                                        if (match) {
+                                                            setFormData(prev => ({
+                                                                ...prev,
+                                                                latitude: parseFloat(match[1]),
+                                                                longitude: parseFloat(match[2])
+                                                            }));
+                                                        }
+                                                    }}
+                                                    placeholder="https://maps.google.com/..."
+                                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all text-sm"
+                                                />
+                                            </div>
                                         </div>
-                                        <input
-                                            type="text"
-                                            value={formData.googleMapsUrl}
-                                            onChange={(e) => setFormData({ ...formData, googleMapsUrl: e.target.value })}
-                                            placeholder="https://maps.google.com/..."
-                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-900 dark:text-white transition-all"
-                                        />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Narxi (bir kecha uchun)</label>

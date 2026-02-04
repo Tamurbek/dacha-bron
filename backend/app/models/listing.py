@@ -19,6 +19,8 @@ class Listing(Base):
     video_url = Column(String, nullable=True) # URL of a video file
     description = Column(Text)
     google_maps_url = Column(String, nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
     status = Column(String, default="active") # 'active' or 'inactive'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

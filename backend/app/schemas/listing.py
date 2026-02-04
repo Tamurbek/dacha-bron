@@ -16,6 +16,8 @@ class ListingBase(BaseModel):
     video_url: Optional[str] = None
     description: Optional[str] = None
     google_maps_url: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     status: Optional[str] = "active"
 
 class ListingCreate(ListingBase):
@@ -24,6 +26,8 @@ class ListingCreate(ListingBase):
     location: str
     price_per_night: float
     google_maps_url: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
 class ListingUpdate(ListingBase):
     pass

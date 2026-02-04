@@ -10,6 +10,17 @@ import { BookingCard } from '../components/BookingCard';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { CustomVideoPlayer } from '../components/ui/CustomVideoPlayer';
 import { regions } from '../data/regions';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix Leaflet marker icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 const isVideo = (url) => {
     if (!url) return false;
@@ -65,7 +76,9 @@ export function ListingDetail() {
                     reviewsCount: data.reviews_count,
                     guestsMax: data.guests_max,
                     videoUrl: data.video_url,
-                    googleMapsUrl: data.google_maps_url
+                    googleMapsUrl: data.google_maps_url,
+                    latitude: data.latitude,
+                    longitude: data.longitude
                 };
 
                 setListing(mappedListing);
@@ -364,8 +377,8 @@ export function ListingDetail() {
                             )}
                         </div>
 
-                        <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 group hover:border-primary-500/30 transition-all duration-500">
-                            <div className="flex items-start space-x-4">
+                        <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 group hover:border-primary-500/30 transition-all duration-500 mb-6">
+                            <div className="flex items-start space-x-4 mb-6">
                                 <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm text-primary-600 group-hover:scale-110 transition-transform duration-500">
                                     <MapPin className="w-6 h-6" />
                                 </div>
@@ -376,19 +389,22 @@ export function ListingDetail() {
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium italic">
                                         {regionName}
                                     </p>
-
-                                    {listing.googleMapsUrl && (
-                                        <div className="mt-4 flex flex-wrap gap-2">
-                                            <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-black uppercase tracking-wider rounded-lg">
-                                                Aniq locatsiya kiritilgan
-                                            </span>
-                                            <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 text-[10px] font-black uppercase tracking-wider rounded-lg">
-                                                Ilovada ochish tayyor
-                                            </span>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
+
+                            {listing.latitude && listing.longitude && (
+                                <div className="h-80 rounded-[1.5rem] overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm z-0">
+                                    <MapContainer center={[listing.latitude, listing.longitude]} zoom={14} style={{ height: '100%', width: '100%' }}>
+                                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                        <Marker position={[listing.latitude, listing.longitude]}>
+                                            <Popup>
+                                                <div className="font-bold">{listing.title}</div>
+                                                <div className="text-xs">{listing.location}</div>
+                                            </Popup>
+                                        </Marker>
+                                    </MapContainer>
+                                </div>
+                            )}
                         </div>
                     </div>
 
