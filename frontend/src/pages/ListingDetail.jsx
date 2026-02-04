@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n/useI18n';
 import { listings } from '../data/listings';
-import { Star, MapPin, Users, Bed, Bath, Wifi, Wind, Flame, Waves, Coffee, Utensils, Share2, Heart, ChevronLeft, ChevronRight, Play, Smile } from 'lucide-react';
+import { Star, MapPin, Users, Bed, Bath, Wifi, Wind, Flame, Waves, Coffee, Utensils, Share2, Heart, ChevronLeft, ChevronRight, Play, Smile, Maximize, Minimize } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { BookingCard } from '../components/BookingCard';
@@ -60,6 +60,7 @@ export function ListingDetail() {
     const [mainImage, setMainImage] = useState(0);
     const [favorites, setFavorites] = useLocalStorage('favorites', []);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [isMapFullscreen, setIsMapFullscreen] = useState(false);
 
     useEffect(() => {
         const fetchListing = async () => {
@@ -393,7 +394,13 @@ export function ListingDetail() {
                             </div>
 
                             {listing.latitude && listing.longitude && (
-                                <div className="h-80 rounded-[1.5rem] overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm z-0">
+                                <div className={`${isMapFullscreen ? 'fixed inset-0 z-[110] bg-white dark:bg-gray-950' : 'h-80 rounded-[1.5rem] overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm'} relative z-0 transition-all duration-500`}>
+                                    <button
+                                        onClick={() => setIsMapFullscreen(!isMapFullscreen)}
+                                        className="absolute top-4 right-4 z-[120] p-2.5 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-xl shadow-lg hover:scale-105 transition-all text-gray-900 dark:text-white border border-white/20"
+                                    >
+                                        {isMapFullscreen ? <Minimize size={22} /> : <Maximize size={20} />}
+                                    </button>
                                     <MapContainer center={[listing.latitude, listing.longitude]} zoom={14} style={{ height: '100%', width: '100%' }}>
                                         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                                         <Marker position={[listing.latitude, listing.longitude]}>

@@ -5,7 +5,7 @@ import { useI18n } from '../i18n/useI18n';
 import { listings } from '../data/listings';
 import { ListingCard } from '../components/ListingCard';
 import { SearchBar } from '../components/SearchBar';
-import { SlidersHorizontal, ChevronDown, LayoutGrid, X, Map as MapIcon, List } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, LayoutGrid, X, Map as MapIcon, List, Maximize, Minimize } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -41,6 +41,7 @@ export function SearchResults() {
     const [isLoading, setIsLoading] = useState(true);
     const [limit, setLimit] = useState(12);
     const [viewType, setViewType] = useState('grid'); // 'grid' or 'map'
+    const [isMapFullscreen, setIsMapFullscreen] = useState(false);
 
     // Filters State
     const [region, setRegion] = useState(searchParams.get('region') || '');
@@ -268,8 +269,24 @@ export function SearchResults() {
                             ))}
                         </div>
                     ) : (
-                        <div className="h-[calc(100vh-250px)] min-h-[500px] rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xl relative z-0">
-                            <MapContainer center={[41.2995, 69.2401]} zoom={6} style={{ height: '100%', width: '100%' }}>
+                        <div className={`${isMapFullscreen ? 'fixed inset-0 z-[100] bg-white dark:bg-gray-950' : 'h-[calc(100vh-250px)] min-h-[500px] rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xl'} relative z-0 transition-all duration-500`}>
+                            {isMapFullscreen && (
+                                <button
+                                    onClick={() => setIsMapFullscreen(false)}
+                                    className="absolute top-6 right-6 z-[110] p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl hover:scale-105 transition-all text-gray-900 dark:text-white border border-gray-100 dark:border-gray-700"
+                                >
+                                    <Minimize className="w-6 h-6" />
+                                </button>
+                            )}
+                            {!isMapFullscreen && (
+                                <button
+                                    onClick={() => setIsMapFullscreen(true)}
+                                    className="absolute top-6 right-6 z-[10] p-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-lg hover:scale-105 transition-all text-gray-900 dark:text-white border border-white/20"
+                                >
+                                    <Maximize className="w-5 h-5" />
+                                </button>
+                            )}
+                            <MapContainer center={[39.6332, 68.4993]} zoom={8} style={{ height: '100%', width: '100%' }}>
                                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                                 {filteredListings.filter(l => l.latitude && l.longitude).map((listing) => (
                                     <Marker key={listing.id} position={[listing.latitude, listing.longitude]}>

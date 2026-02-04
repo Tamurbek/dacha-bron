@@ -60,6 +60,8 @@ import {
     Bed,
     Bath,
     Smile,
+    Maximize,
+    Minimize,
     GripVertical
 } from 'lucide-react';
 
@@ -235,6 +237,7 @@ export const AdminListings = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [pageSize] = useState(10);
     const [availableAmenities, setAvailableAmenities] = useState([]);
+    const [isMapFullscreen, setIsMapFullscreen] = useState(false);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -246,8 +249,8 @@ export const AdminListings = () => {
         images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400'],
         videoUrl: '',
         googleMapsUrl: '',
-        latitude: 41.2995, // Tashkent default
-        longitude: 69.2401,
+        latitude: 39.6332, // Zomin Sanatorium default
+        longitude: 68.4993,
         guests_max: 10,
         rooms: 4,
         beds: 5,
@@ -296,8 +299,8 @@ export const AdminListings = () => {
                 images: listing.images || [listing.image],
                 videoUrl: listing.videoUrl || listing.video_url || '',
                 googleMapsUrl: listing.google_maps_url || '',
-                latitude: listing.latitude || 41.2995,
-                longitude: listing.longitude || 69.2401,
+                latitude: listing.latitude || 39.6332,
+                longitude: listing.longitude || 68.4993,
                 guests_max: listing.guests_max || 10,
                 rooms: listing.rooms || 4,
                 beds: listing.beds || 5,
@@ -322,8 +325,8 @@ export const AdminListings = () => {
                 images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400'],
                 videoUrl: '',
                 googleMapsUrl: '',
-                latitude: 41.2995,
-                longitude: 69.2401,
+                latitude: 39.6332,
+                longitude: 68.4993,
                 guests_max: 10,
                 rooms: 4,
                 beds: 5,
@@ -857,7 +860,14 @@ export const AdminListings = () => {
                                                 )}
                                             </div>
 
-                                            <div className="h-64 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-inner z-0">
+                                            <div className={`${isMapFullscreen ? 'fixed inset-0 z-[110] bg-white dark:bg-gray-950' : 'h-64 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-inner'} relative z-0 transition-all duration-500`}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsMapFullscreen(!isMapFullscreen)}
+                                                    className={`absolute top-4 right-4 z-[120] p-2 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-xl shadow-lg hover:scale-105 transition-all text-gray-900 dark:text-white border border-white/20`}
+                                                >
+                                                    {isMapFullscreen ? <Minimize size={20} /> : <Maximize size={18} />}
+                                                </button>
                                                 <MapContainer center={[formData.latitude, formData.longitude]} zoom={13} style={{ height: '100%', width: '100%' }}>
                                                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                                                     <Marker position={[formData.latitude, formData.longitude]} />
