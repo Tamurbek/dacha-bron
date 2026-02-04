@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n/useI18n';
 import { listings } from '../data/listings';
-import { Star, MapPin, Users, Bed, Bath, Wifi, Wind, Flame, Waves, Coffee, Utensils, Share2, Heart, ChevronLeft, ChevronRight, Play, Smile, Maximize, Minimize } from 'lucide-react';
+import { Star, MapPin, Users, Bed, Bath, Wifi, Wind, Flame, Waves, Coffee, Utensils, Share2, Heart, ChevronLeft, ChevronRight, Play, Smile, Maximize, Minimize, X, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { BookingCard } from '../components/BookingCard';
@@ -73,6 +73,7 @@ export function ListingDetail() {
     const [isFavorite, setIsFavorite] = useState(false);
     const [isMapFullscreen, setIsMapFullscreen] = useState(false);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+    const [shareStatus, setShareStatus] = useState('ideal'); // 'ideal' or 'copied'
 
     useEffect(() => {
         const fetchListing = async () => {
@@ -113,6 +114,26 @@ export function ListingDetail() {
         } else {
             setFavorites([...favorites, listing.id]);
             setIsFavorite(true);
+        }
+    };
+
+    const handleShare = async () => {
+        const shareData = {
+            title: listing.title,
+            text: `Dacha bron qilish: ${listing.title} - ${listing.location}`,
+            url: window.location.href,
+        };
+
+        try {
+            if (navigator.share && navigator.canShare(shareData)) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                setShareStatus('copied');
+                setTimeout(() => setShareStatus('ideal'), 2000);
+            }
+        } catch (err) {
+            console.error('Error sharing:', err);
         }
     };
 
@@ -170,9 +191,22 @@ export function ListingDetail() {
                 </div>
 
                 <div className="flex items-center space-x-3">
-                    <Button variant="ghost" className="hidden sm:flex items-center space-x-2">
-                        <Share2 className="w-4 h-4" />
-                        <span>Ulashish</span>
+                    <Button
+                        variant="ghost"
+                        onClick={handleShare}
+                        className={`flex items-center space-x-2 transition-all duration-300 ${shareStatus === 'copied' ? 'text-green-600' : ''}`}
+                    >
+                        {shareStatus === 'copied' ? (
+                            <>
+                                <CheckCircle2 className="w-4 h-4 animate-in zoom-in" />
+                                <span>Nusxalandi!</span>
+                            </>
+                        ) : (
+                            <>
+                                <Share2 className="w-4 h-4" />
+                                <span>Ulashish</span>
+                            </>
+                        )}
                     </Button>
                     <Button variant="ghost" onClick={toggleFavorite} className="flex items-center space-x-2">
                         <Heart className={`w-4 h-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
