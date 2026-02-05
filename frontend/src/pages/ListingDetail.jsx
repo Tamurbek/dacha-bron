@@ -267,20 +267,57 @@ export function ListingDetail() {
             {/* Luxury Cinematic Hero Gallery */}
             <div className="relative mb-16 group">
                 <div className="flex flex-col md:flex-row gap-4 h-[400px] md:h-[480px]">
-                    {/* Primary Large Image */}
+                    {/* Primary Large Image (or Video) */}
                     <div
-                        className="flex-[1.8] relative cursor-pointer overflow-hidden rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 shadow-2xl shadow-black/5"
-                        onClick={() => { setMainImage(listing.videoUrl ? 1 : 0); setIsLightboxOpen(true); }}
+                        className="flex-[1.8] relative cursor-pointer overflow-hidden rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 shadow-2xl shadow-black/5 group/main"
+                        onClick={() => { setMainImage(0); setIsLightboxOpen(true); }}
                     >
-                        <img
-                            src={listing.images[0]}
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                            alt="Main Hero"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                        {!!listing.videoUrl ? (
+                            listing.videoUrl.includes('youtube') || listing.videoUrl.includes('youtu.be') ? (
+                                <div className="absolute inset-0 w-full h-full">
+                                    <img
+                                        src={getYoutubeThumbnail(listing.videoUrl)}
+                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                        alt="Main Video"
+                                    />
+                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover/main:scale-110 transition-transform duration-500 border border-white/30">
+                                            <Play className="w-8 h-8 text-white fill-white ml-1" />
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="absolute inset-0 w-full h-full">
+                                    <video
+                                        src={listing.videoUrl}
+                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                        autoPlay
+                                        muted
+                                        loop
+                                        playsInline
+                                    />
+                                    <div className="absolute inset-0 bg-black/10 transition-colors" />
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                        <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
+                                            <Maximize className="w-8 h-8 text-white" />
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        ) : (
+                            <>
+                                <img
+                                    src={listing.images[0]}
+                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                    alt="Main Hero"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                            </>
+                        )}
 
                         {/* Premium Label */}
-                        <div className="absolute top-6 left-6 px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white text-[10px] font-black uppercase tracking-widest shadow-2xl">
+                        <div className="absolute top-6 left-6 px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white text-[10px] font-black uppercase tracking-widest shadow-2xl z-10">
                             Premium Dacha
                         </div>
                     </div>
@@ -290,11 +327,12 @@ export function ListingDetail() {
                         {/* Top Secondary */}
                         <div
                             className="flex-1 relative cursor-pointer overflow-hidden rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 shadow-xl shadow-black/5"
-                            onClick={() => { setMainImage(listing.videoUrl ? 2 : 1); setIsLightboxOpen(true); }}
+                            onClick={() => { setMainImage(1); setIsLightboxOpen(true); }}
                         >
-                            {listing.images[1] ? (
+                            {/* If video exists, shift images. video is index 0. image[0] becomes index 1. */}
+                            {listing.images[!!listing.videoUrl ? 0 : 1] ? (
                                 <img
-                                    src={listing.images[1]}
+                                    src={listing.images[!!listing.videoUrl ? 0 : 1]}
                                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                                     alt="Secondary 1"
                                 />
@@ -307,11 +345,11 @@ export function ListingDetail() {
                         {/* Bottom Secondary + View All Trigger */}
                         <div
                             className="flex-1 relative cursor-pointer overflow-hidden rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 shadow-xl shadow-black/5"
-                            onClick={() => { setMainImage(listing.videoUrl ? 3 : 2); setIsLightboxOpen(true); }}
+                            onClick={() => { setMainImage(2); setIsLightboxOpen(true); }}
                         >
-                            {listing.images[2] ? (
+                            {listing.images[!!listing.videoUrl ? 1 : 2] ? (
                                 <img
-                                    src={listing.images[2]}
+                                    src={listing.images[!!listing.videoUrl ? 1 : 2]}
                                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                                     alt="Secondary 2"
                                 />
@@ -326,7 +364,11 @@ export function ListingDetail() {
                                     className="px-8 py-5 bg-black/40 backdrop-blur-2xl border border-white/20 rounded-[2rem] text-white flex flex-col items-center group/btn hover:bg-black/60 transition-all duration-500 transform hover:scale-105"
                                 >
                                     <span className="text-3xl font-black mb-1">
-                                        {listing.images.length > 3 ? `+${listing.images.length - 2}` : 'Barcha'}
+                                        {(() => {
+                                            const totalMedia = listing.images.length + (!!listing.videoUrl ? 1 : 0);
+                                            const remaining = totalMedia - 3; // 3 are shown
+                                            return remaining > 0 ? `+${remaining}` : 'Barcha';
+                                        })()}
                                     </span>
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Rasmlar</span>
 
